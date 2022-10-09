@@ -1,0 +1,440 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+body {
+  font-family: arial;
+  color: #FAFAFA;
+  text-transform: uppercase;
+}
+
+.scoreboard {
+  background: #333;
+  width: 700px;
+  margin: 70px auto;
+  box-shadow: 0 4px 0px #333;
+  border-radius: 15px;
+
+}
+
+.header {
+  padding: 5px 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  background-color: #222;
+  border-radius: 15px 15px 0 0;
+  border-bottom: solid 2px #444;
+}
+
+.header h1 {
+  flex-grow: 1;
+  font-size: 1.5em;
+  letter-spacing: 3px;
+  font-weight: normal;
+}
+
+.header-lock-toggle {
+  float: left;
+  margin-right: 10px;
+  color: #e57373;
+  cursor: pointer;
+}
+
+.header-unlock-toggle {
+  float: left;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.score {
+  display: flex;
+  font-size: 1.2em;
+  border-bottom: solid 2px #444;
+  letter-spacing: 2px;
+}
+
+.score input[type=text] {
+  flex-grow: 1;
+  border-width: 0 0 1px 0;
+  margin: 0px 10px 0px 15px;
+  padding: 0px 10px 0px 10px;
+  border-radius: 5px;
+  background-color: #333;
+  border-style: none;
+  text-shadow: none;
+  text-transform: uppercase;
+  text-align: center;
+  color: #999;
+  letter-spacing: 2px;
+  outline: none;
+  width: 85%
+}
+
+.scoreinput[type=text]::-webkit-input-placeholder {
+  color: #666;
+  letter-spacing: 2px;
+}
+
+.score input[type=text]:focus {
+  background-color: #444;
+}
+
+.score-name {
+  flex-grow: 1;
+  padding: 20px 10px 10px 10px;
+}
+
+.score-score {
+  width: 330px;
+}
+
+.button {
+  display: flex;
+  font-size: 1.2em;
+  border-bottom: solid 2px #444;
+  letter-spacing: 2px;
+}
+
+.button-name {
+  flex-grow: 1;
+  padding: 5px 10px 5px 10px;
+}
+
+.button-score {
+  width: 270px;
+}
+
+.counter {
+  display: flex;
+}
+
+.counter-action {
+  border-top: none;
+  border-left: solid 1px #444;
+  border-right: solid 1px #444;
+  border-bottom: none;
+  font-weight: bold;
+  color: #FAFAFA;
+  display: block;
+  padding: 20px 20px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.counter-action.increment {
+  background: #66BB6A;
+}
+
+.counter-action.increment:not(:disabled):hover {
+  background: #549d59;
+  cursor: pointer;
+}
+
+.counter-action.decrement {
+  background: #ef5350;
+}
+
+.counter-action.decrement:not(:disabled):hover {
+  background: #c44442;
+  cursor: pointer;
+}
+
+.counter-score {
+  flex-grow: 1;
+  max-width: 150px;
+  overflow-x: overlay;
+  background: #2b2b2b;
+  color: #FAFAFA;
+  text-align: center;
+  font-family: monospace;
+  padding: 10px;
+  font-size: 2em;
+  align-content: center;
+  align-items: center;
+}
+
+.stats {
+  margin-top: 0;
+  font-weight: normal;
+}
+
+.stats td:first-child {
+  text-align: right;
+  font-weight: normal;
+  letter-spacing: 2px;
+  color: #666;
+  font-size: .7em;
+}
+
+.stats td:last-child {
+  text-align: left;
+}
+
+.header .stats,
+.header .stopwatch {
+  width: 310px;
+}
+
+.add-button-form form {
+  display: flex;
+  background-color: #222;
+  border-radius: 0 0 20px 20px;
+  border: solid 1px #333;
+}
+
+.edit-button-form form {
+  display: flex;
+  background-color: #222;
+  border-radius: 0 0 20px 20px;
+  border: solid 1px #2f73ea;
+}
+
+.add-button-form input[type=text], .add-button-form input[type=number],
+.edit-button-form input[type=text], .edit-button-form input[type=number] {
+  flex-grow: 1;
+  border-width: 0 0 1px 0;
+  margin: 15px 10px 15px 15px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #333;
+  border-style: none;
+  text-shadow: none;
+  text-transform: uppercase;
+  text-align: center;
+  color: #999;
+  letter-spacing: 2px;
+  outline: none;
+}
+
+.add-button-form input[type=text]::-webkit-input-placeholder, .add-button-form input[type=number]::-webkit-input-placeholder,
+.edit-button-form input[type=text]::-webkit-input-placeholder, .edit-button-form input[type=number]::-webkit-input-placeholder {
+  color: #666;
+  letter-spacing: 2px;
+}
+
+.add-button-form input[type=text]:focus, .add-button-form input[type=number]:focus,
+.edit-button-form input[type=text]:focus, .edit-button-form input[type=number]:focus {
+  background-color: #444;
+}
+
+.add-button-form input[type=submit], .edit-button-form input[type=submit] {
+  display: block;
+  font-size: .6em;
+  margin: 15px 15px 15px 0;
+  padding: 10px;
+  background-color: #333;
+  border-radius: 5px;
+  border: none;
+  color: #999;
+  letter-spacing: 2px;
+  font-weight: bold;
+  text-shadow: none;
+  text-transform: uppercase;
+  width: 30%;
+}
+
+.add-button-form input[type=submit]:not(:disabled):hover, .edit-button-form input[type=submit]:not(:disabled):hover {
+  background: #4b71b5;
+  color: #fafafa;
+  cursor: pointer;
+}
+
+.button-remove {
+  float: left;
+  margin-right: 10px;
+  color: #e57373;
+  cursor: pointer;
+}
+
+.button-edit {
+  float: right;
+  margin-right: 10px;
+  color: #4b71b5;
+  cursor: pointer;
+}
+
+.button-action {
+  display: inline-flex;
+  font-size: .6em;
+  margin: 0px 15px 0px 15px;
+  padding: 5px 10px 10px 10px;
+  background-color: #222;
+  border-radius: 5px;
+  border: solid 0.5px #ef5350;
+  color: #FAFAFA;
+  letter-spacing: 2px;
+  font-weight: bold;
+  text-shadow: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  text-align: center;
+  width: 83%;
+  height: 80%;
+}
+
+.isOnline {
+  border: solid 0.5px #66BB6A;
+}
+
+.button-action:not(:disabled):hover {
+  background: #66BB6A;
+  cursor: pointer;
+}
+
+.isOnline:not(:disabled):hover {
+  background: #ef5350;
+  cursor: pointer;
+}
+
+.stopwatch {
+  padding: 15px 10px 5px 10px;
+  margin: -5px -10px -5px 10px;
+  background: #2f2f2f;
+  border-radius: 0 15px 0 0;
+}
+
+.stopwatch {
+  padding: 15px 10px 5px 10px;
+  margin: -5px -10px -5px 10px;
+  background: #2f2f2f;
+  border-radius: 0 15px 0 0;
+}
+
+.stopwatch input[type=text],
+.stopwatch input[type=number] {
+  flex-grow: 1;width: 95%;
+  border-width: 0 0 1px 0;
+  border-radius: 5px;
+  background-color: #333;
+  border-style: none;
+  text-shadow: none;
+  text-transform: uppercase;
+  text-align: center;
+  color: #999;
+  letter-spacing: 2px;
+  outline: none;
+}
+
+.stopwatch input[type=text]::-webkit-input-placeholder,
+.stopwatch input[type=number]::-webkit-input-placeholder {
+  color: #666;
+  letter-spacing: 2px;
+}
+
+.stopwatch input[type=text]:focus,
+.stopwatch input[type=number]:focus {
+  background-color: #444;
+}
+
+.stopwatch-time {
+  font-family: monospace;
+  font-size: 2em;
+}
+
+.stopwatch-stop {
+  background: #ef5350;
+  color: #e6e6e6;
+}
+
+.stopwatch-stop:not(:disabled):hover {
+  background: #c44442;
+  color: #e6e6e6;
+}
+
+.stopwatch-start {
+  background: #66BB6A;
+  color: #e6e6e6;
+}
+
+.stopwatch-start:not(:disabled):hover {
+  background: #549d59;
+  color: #e6e6e6;
+}
+
+.stopwatch-reset {
+  background: #4b71b5;
+  color: #e6e6e6;
+}
+
+.stopwatch-reset:not(:disabled):hover {
+  background: #3b5b9b;
+  color: #e6e6e6;
+}
+
+.stopwatch button {
+  margin: 8px 5px;
+  border-radius: 5px;
+  padding: 7px 8px;
+  border: none;
+  letter-spacing: 2px;
+  font-weight: bold;
+  text-shadow: none;
+  text-transform: uppercase;
+}
+
+.stopwatch:not(:disabled) button:hover {
+  cursor: pointer;
+}
+
+
+.stopwatch h2 {
+  font-size: .6em;
+  margin: 0;
+  font-weight: normal;
+  letter-spacing: 2px;
+  color: #666;
+}
+
+.disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+}
+
+.hidden {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  cursor: none !important;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
