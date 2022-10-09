@@ -95,7 +95,7 @@ const Scoreboard = () => {
 	};
 
 	const onRemoveButton = (button = defaultButton) => {
-		if (window.confirm(`Are you sure you want to remove button ${button.title}?`)) {
+		if (window.confirm(`Are you sure you want to remove the "[${button.xpnTakeId}] ${button.title}" button?`)) {
 			console.log('onRemoveButton', button);
 			removeButton(button);
 			if (buttonToEdit && buttonToEdit.index === button.index) {
