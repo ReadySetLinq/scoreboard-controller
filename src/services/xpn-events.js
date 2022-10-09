@@ -98,6 +98,143 @@ export const events = {
 			}),
 		);
 	},
+	// Widget
+	'xpn.EditCounterWidget': ({ uuid = null, name = '', value = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'EditCounterWidget',
+					properties: { uuid, name, value },
+				},
+			}),
+		);
+	},
+	'xpn.GetCounterWidgetValue': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'GetCounterWidgetValue',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
+	'xpn.GetClockWidgetTimerValue': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'GetClockWidgetTimerValue',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
+	'xpn.StartClockWidget': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'StartClockWidget',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
+	'xpn.StopClockWidget': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'StopClockWidget',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
+	'xpn.ResetClockWidget': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'ResetClockWidget',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
+	'xpn.EditClockWidgetFormat': ({ uuid = null, name = '', format = 'NN:SS' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'EditClockWidgetFormat',
+					properties: { uuid, name, format },
+				},
+			}),
+		);
+	},
+	'xpn.EditClockWidgetStartTime': ({ uuid = null, name = '', startTime = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'EditClockWidgetStartTime',
+					properties: { uuid, name, startTime },
+				},
+			}),
+		);
+	},
+	'xpn.SetClockWidgetTimerValue': ({ uuid = null, name = '', value = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'SetClockWidgetTimerValue',
+					properties: { uuid, name, value },
+				},
+			}),
+		);
+	},
+	'xpn.SetClockWidgetCallback': ({
+		uuid = null,
+		name = '',
+		callback = (Hours, Minutes, Seconds, Milli) => {
+			return { hours: Hours, minutes: Minutes, seconds: Seconds, milliseconds: Milli };
+		},
+	}) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'SetClockWidgetCallback',
+					properties: { uuid, name, callback },
+				},
+			}),
+		);
+	},
 };
 
 export default XPN_Events;

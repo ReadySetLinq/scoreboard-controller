@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { RiLockLine, RiLockUnlockLine, RiDeleteBinLine, RiEditBoxLine } from 'react-icons/ri';
+import { generate } from 'shortid';
 
 import { defaultButton } from './jotai/atoms';
 import {
@@ -20,6 +21,8 @@ import {
 	getLockedModeAtom,
 	setLockedModeAtom,
 } from './jotai/selectors';
+
+import Emitter from './services/emitter';
 
 import './App.css';
 
@@ -49,6 +52,16 @@ const Scoreboard = () => {
 	const [buttonToEdit, setButtonToEdit] = useState(null);
 	const headerLockClass = useMemo(() => (isLocked ? 'header-lock-toggle' : 'header-unlock-toggle'), [isLocked]);
 
+	const updateScroll = (title) => {
+		const input = document.getElementById(`score-input-${title}`);
+		if (input) {
+			const paddingRight = parseInt(getStyle(input, 'padding-right').replace('px', ''), 0);
+			const textLength = homeScore.value.toString().length;
+			if (textLength > 5) input.scrollLeft = paddingRight + textLength * 1.5;
+			else input.scrollLeft = paddingRight / 1.5;
+		}
+	};
+
 	const onScoreChange = (title, increase, amount = 0) => {
 		switch (title) {
 			case 'HomeScore':
@@ -70,12 +83,6 @@ const Scoreboard = () => {
 			default:
 				break;
 		}
-		const input = document.getElementById(`score-input-${title}`);
-		if (input) input.scrollLeft = input.scrollWidth;
-	};
-
-	const onButtonClick = (button = defaultButton) => {
-		console.log('onButtonClick', button);
 	};
 
 	const onEditButton = (button = defaultButton) => {
@@ -100,24 +107,74 @@ const Scoreboard = () => {
 	const onLockButton = () => setIsLocked(!isLocked);
 
 	useEffect(() => {
-		const input = document.getElementById(`score-input-${homeScore.title}`);
-		if (input) {
-			const paddingRight = parseInt(getStyle(input, 'padding-right').replace('px', ''), 0);
-			const textLength = homeScore.value.toString().length;
-			if (textLength > 5) input.scrollLeft = paddingRight + textLength * 1.5;
-			else input.scrollLeft = paddingRight / 1.5;
-		}
-	}, [homeScore]);
+		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
+		Emitter.once(_tmpUUID, ({ response }) => {
+			const returnedValue = parseInt(response, 0);
+			const currentValue = parseInt(homeScore.value, 0);
+			if (returnedValue !== currentValue) setHomeScore({ value: returnedValue });
+			updateScroll(homeScore.title);
+		});
+
+		Emitter.emit('xpn.EditCounterWidget', {
+			uuid: _tmpUUID,
+			name: homeScore.widgetName,
+			value: homeScore.value,
+		});
+
+		updateScroll(homeScore.title);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [homeScore.value]);
 
 	useEffect(() => {
-		const input = document.getElementById(`score-input-${awayScore.title}`);
-		if (input) {
-			const paddingRight = parseInt(getStyle(input, 'padding-right').replace('px', ''), 0);
-			const textLength = awayScore.value.toString().length;
-			if (textLength > 5) input.scrollLeft = paddingRight + textLength * 1.5;
-			else input.scrollLeft = paddingRight / 1.5;
-		}
-	}, [awayScore]);
+		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
+		Emitter.once(_tmpUUID, ({ response }) => {
+			const returnedValue = parseInt(response, 0);
+			const currentValue = parseInt(awayScore.value, 0);
+			if (returnedValue !== currentValue) setHomeScore({ value: returnedValue });
+			updateScroll(awayScore.title);
+		});
+
+		Emitter.emit('xpn.EditCounterWidget', {
+			uuid: _tmpUUID,
+			name: awayScore.widgetName,
+			value: awayScore.value,
+		});
+
+		updateScroll(awayScore.title);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [awayScore.value]);
+
+	useEffect(() => {
+		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
+		Emitter.once(_tmpUUID, ({ response }) => {
+			setHomeScore({ value: response });
+		});
+
+		Emitter.emit('xpn.GetCounterWidgetValue', {
+			uuid: _tmpUUID,
+			name: homeScore.widgetName,
+		});
+
+		return () => {
+			Emitter.off(_tmpUUID);
+		};
+	}, [homeScore.widgetName, setHomeScore]);
+
+	useEffect(() => {
+		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
+		Emitter.once(_tmpUUID, ({ response }) => {
+			setAwayScore({ value: response });
+		});
+
+		Emitter.emit('xpn.GetCounterWidgetValue', {
+			uuid: _tmpUUID,
+			name: awayScore.widgetName,
+		});
+
+		return () => {
+			Emitter.off(_tmpUUID);
+		};
+	}, [awayScore.widgetName, setAwayScore]);
 
 	return (
 		<div className='scoreboard'>
@@ -152,7 +209,6 @@ const Scoreboard = () => {
 						<Button
 							index={button.index}
 							key={`buttons-${button.index}`}
-							onClick={() => onButtonClick(button)}
 							onRemove={() => onRemoveButton(button)}
 							onEdit={() => onEditButton(button)}
 						/>
@@ -295,9 +351,37 @@ const Button = (props) => {
 	const isHiddenClass = useMemo(() => (isLocked ? 'hidden' : ''), [isLocked]);
 
 	const onButtonClick = useCallback(() => {
-		setButton({ online: !button.online });
+		const _tmpUUID = `scoreboard-setTakeItemOnline-${generate()}`;
+
+		Emitter.once(_tmpUUID, (data) => {
+			console.log('onButtonClick', _tmpUUID, data);
+			setButton({ online: !!data.response });
+		});
+
+		// Take the text back online
+		Emitter.emit('xpn.SetTakeItemOnline', {
+			uuid: _tmpUUID,
+			takeID: button.xpnTakeId,
+		});
+
 		props.onClick();
-	}, [button.online, props, setButton]);
+	}, [button.xpnTakeId, props, setButton]);
+
+	useEffect(() => {
+		const _tmpUUID = `scoreboard-getTakeItemStatus-${generate()}`;
+		Emitter.once(_tmpUUID, ({ response = false }) => {
+			setButton({ online: response });
+		});
+
+		Emitter.emit('xpn.GetTakeItemStatus', {
+			uuid: _tmpUUID,
+			takeID: button.xpnTakeId,
+		});
+
+		return () => {
+			Emitter.off(_tmpUUID);
+		};
+	}, [button.xpnTakeId, setButton]);
 
 	return (
 		<div className='button'>

@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { selectAtom, atomFamily } from 'jotai/utils';
 
-import { widgetsAtom, buttonsAtom, defaultButton, lockedModeAtom } from './atoms';
+import { widgetsAtom, buttonsAtom, defaultButton, lockedModeAtom, connectionAtom, websocketsAtom } from './atoms';
 
 export const getHomeScoreSelector = selectAtom(widgetsAtom, (widget) => widget.homeScore);
 export const getAwayScoreSelector = selectAtom(widgetsAtom, (widget) => widget.awayScore);
@@ -45,8 +45,8 @@ export const getNextButtonTakeId = atom((get) => {
 	const buttons = get(buttonsAtom);
 	const index = buttons.length - 1;
 	const button = buttons[index];
-	if (button) return parseInt(button.xpnTakeId) + 1 ?? 1;
-	return parseInt(defaultButton.xpnTakeId) + 1 ?? 1;
+	if (button) return parseInt(button.xpnTakeId) + 1;
+	return parseInt(defaultButton.xpnTakeId) + 1;
 });
 
 export const setButtonAtom = atomFamily((index) =>
@@ -58,6 +58,10 @@ export const setButtonAtom = atomFamily((index) =>
 export const getLockedModeAtom = atom((get) => get(lockedModeAtom));
 
 export const setLockedModeAtom = atom(null, (_get, set, value) => set(lockedModeAtom, value));
+
+export const getConnectionAtom = atom((get) => get(connectionAtom));
+
+export const getWebsocketAtom = atom((get) => get(websocketsAtom));
 
 const Selectors = {
 	getHomeScoreSelector,
@@ -75,5 +79,7 @@ const Selectors = {
 	getNextButtonTakeId,
 	getLockedModeAtom,
 	setLockedModeAtom,
+	getConnectionAtom,
+	getWebsocketAtom,
 };
 export default Selectors;

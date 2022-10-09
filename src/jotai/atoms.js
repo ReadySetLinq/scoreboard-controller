@@ -1,4 +1,7 @@
+import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+
+import { connection, webSockets } from '../services/utilities';
 
 export const defaultHomeScore = {
 	title: 'Home Score',
@@ -41,6 +44,14 @@ export const initialLockedModeState = true;
 
 export const lockedModeAtom = atomWithStorage('rsl.scoreboard.lockedMode', initialLockedModeState);
 
+export const initialConnectionState = connection;
+
+export const connectionAtom = atom(initialConnectionState);
+
+export const initialWebsocketsState = webSockets;
+
+export const websocketsAtom = atom(initialWebsocketsState);
+
 const Atoms = {
 	defaultHomeScore,
 	defaultAwayScore,
@@ -52,5 +63,9 @@ const Atoms = {
 	buttonsAtom,
 	initialLockedModeState,
 	lockedModeAtom,
+	initialConnectionState,
+	connectionAtom,
+	initialWebsocketsState,
+	websocketsAtom,
 };
 export default Atoms;
