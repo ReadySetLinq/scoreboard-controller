@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { RiLockLine, RiLockUnlockLine, RiDeleteBinLine, RiEditBoxLine } from 'react-icons/ri';
 import { generate } from 'shortid';
 
-import { defaultButton } from './jotai/atoms';
+import { urlParamsAtom, defaultButton } from './jotai/atoms';
 import {
 	getHomeScoreSelector,
 	getAwayScoreSelector,
@@ -20,6 +20,8 @@ import {
 	setButtonAtom,
 	getLockedModeAtom,
 	setLockedModeAtom,
+	getConnectionSettingsSelector,
+	setConnectionSettingsAtom,
 } from './jotai/selectors';
 
 import Emitter from './services/emitter';
@@ -40,7 +42,27 @@ const getStyle = (oElm, strCssRule) => {
 	return strValue;
 };
 
+const ConfirmBox = ({ show, title, message, onConfirm, onCancel }) => {
+	return (
+		<div className={`confirm-box ${show ? 'show' : 'hidden no_display'}`}>
+			<div className='confirm-box__content'>
+				<div className='confirm-box__title'>{title}</div>
+				<div className='confirm-box__message'>{message}</div>
+				<div className='confirm-box__actions'>
+					<button className='confirm-box__action confirm-box__action--cancel' onClick={() => onCancel()}>
+						Cancel
+					</button>
+					<button className='confirm-box__action confirm-box__action--confirm' onClick={() => onConfirm()}>
+						Confirm
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+};
+
 const Scoreboard = () => {
+	const urlParams = useAtomValue(urlParamsAtom);
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const setIsLocked = useSetAtom(setLockedModeAtom);
 	const homeScore = useAtomValue(getHomeScoreSelector);
@@ -50,6 +72,13 @@ const Scoreboard = () => {
 	const buttons = useAtomValue(getButtonsSelector);
 	const removeButton = useSetAtom(removeButtonAtom);
 	const [buttonToEdit, setButtonToEdit] = useState(null);
+	const [confirmState, setConfirmState] = useState({
+		show: false,
+		title: '',
+		message: '',
+		onConfirm: null,
+		onCancel: null,
+	});
 	const headerLockClass = useMemo(() => (isLocked ? 'header-lock-toggle' : 'header-unlock-toggle'), [isLocked]);
 
 	const updateScroll = (title) => {
@@ -95,13 +124,17 @@ const Scoreboard = () => {
 	};
 
 	const onRemoveButton = (button = defaultButton) => {
-		if (window.confirm(`Are you sure you want to remove the "[${button.xpnTakeId}] ${button.title}" button?`)) {
-			console.log('onRemoveButton', button);
-			removeButton(button);
-			if (buttonToEdit && buttonToEdit.index === button.index) {
-				setButtonToEdit(null);
-			}
-		}
+		setConfirmState({
+			show: true,
+			title: 'Remove Button',
+			message: `Are you sure you want to remove the "[${button.xpnTakeId}] ${button.title}" button?`,
+			onConfirm: () => {
+				removeButton(button);
+				if (buttonToEdit && buttonToEdit.index === button.index) setButtonToEdit(null);
+				setConfirmState({ show: false, title: '', message: '', onConfirm: null, onCancel: null });
+			},
+			onCancel: () => setConfirmState({ show: false, title: '', message: '', onConfirm: null, onCancel: null }),
+		});
 	};
 
 	const onLockButton = () => setIsLocked(!isLocked);
@@ -175,6 +208,33 @@ const Scoreboard = () => {
 			Emitter.off(_tmpUUID);
 		};
 	}, [awayScore.widgetName, setAwayScore]);
+
+	if (confirmState.show) {
+		return (
+			<div className='scoreboard'>
+				<div className='header'>
+					<a
+						className={`${headerLockClass}`}
+						title={`${isLocked ? 'Unlock Edit Mode' : 'Lock Edit Mode'}`}
+						onClick={onLockButton}
+					>
+						{isLocked ? <RiLockLine /> : <RiLockUnlockLine />}
+					</a>
+					<h1>Scoreboard</h1>
+					<GameClock />
+				</div>
+				<div className='buttons'>
+					<ConfirmBox
+						show={confirmState.show}
+						title={confirmState.title}
+						message={confirmState.message}
+						onConfirm={confirmState.onConfirm}
+						onCancel={confirmState.onCancel}
+					/>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className='scoreboard'>
@@ -363,9 +423,7 @@ const Button = (props) => {
 			uuid: _tmpUUID,
 			takeID: button.xpnTakeId,
 		});
-
-		props.onClick();
-	}, [button.xpnTakeId, props, setButton]);
+	}, [button.xpnTakeId, setButton]);
 
 	useEffect(() => {
 		const _tmpUUID = `scoreboard-getTakeItemStatus-${generate()}`;
@@ -571,4 +629,37 @@ const AddButtonForm = () => {
 	);
 };
 
-export default Scoreboard;
+const App = () => {
+	const [urlParams, setUrlParams] = useAtom(urlParamsAtom);
+	const connectionSettings = useAtomValue(getConnectionSettingsSelector);
+	const setConnectionSettings = useSetAtom(setConnectionSettingsAtom);
+
+	useEffect(() => {
+		let settings = { ...connectionSettings };
+
+		if (urlParams.has('ip')) settings.ip = urlParams.get('ip');
+		try {
+			if (urlParams.has('port')) settings.port = parseInt(urlParams.get('port'), 0);
+		} catch {}
+
+		if (urlParams.has('username')) settings.username = urlParams.get('username');
+		if (urlParams.has('password')) settings.password = urlParams.get('password');
+
+		const hasUpdated =
+			connectionSettings.ip !== settings.ip ||
+			connectionSettings.port !== settings.port ||
+			connectionSettings.username !== settings.userName ||
+			connectionSettings.password !== settings.password;
+
+		if (hasUpdated) setConnectionSettings(settings);
+	}, [urlParams, connectionSettings, setConnectionSettings]);
+
+	useEffect(() => {
+		const urlSearchParams = new URLSearchParams(window.location.search);
+		if (urlParams !== urlSearchParams) setUrlParams(urlParams);
+	}, [setUrlParams, urlParams]);
+
+	return <Scoreboard />;
+};
+
+export default App;

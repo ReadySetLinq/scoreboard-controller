@@ -52,6 +52,10 @@ export const initialWebsocketsState = webSockets;
 
 export const websocketsAtom = atom(initialWebsocketsState);
 
+export const initialUrlParams = new URLSearchParams(window.location.search);
+
+export const urlParamsAtom = atom(initialUrlParams);
+
 const Atoms = {
 	defaultHomeScore,
 	defaultAwayScore,
@@ -67,5 +71,7 @@ const Atoms = {
 	connectionAtom,
 	initialWebsocketsState,
 	websocketsAtom,
+	initialUrlParams,
+	urlParamsAtom,
 };
 export default Atoms;
