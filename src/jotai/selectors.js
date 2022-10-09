@@ -61,7 +61,25 @@ export const setLockedModeAtom = atom(null, (_get, set, value) => set(lockedMode
 
 export const getConnectionAtom = atom((get) => get(connectionAtom));
 
+export const getConnectioniIitializedSelector = selectAtom(connectionAtom, (widget) => widget.initialized);
+export const getConnectionConnectedSelector = selectAtom(connectionAtom, (widget) => widget.connected);
+export const getConnectionConnectingSelector = selectAtom(connectionAtom, (widget) => widget.connecting);
+export const getConnectionSettingsSelector = selectAtom(connectionAtom, (widget) => widget.settings);
+
+export const setConnectionSettingsAtom = atom(null, (get, _set, value) => () => {
+	const connection = get(connectionAtom);
+	connection.updateSettings({ ...connection.settings, ...value });
+});
+
 export const getWebsocketAtom = atom((get) => get(websocketsAtom));
+
+export const getWebsocketStatusSelector = selectAtom(websocketsAtom, (widget) => widget.status);
+export const getWebsocketDataSelector = selectAtom(websocketsAtom, (widget) => widget.data);
+
+export const setWebsocketDataAtom = atom(null, (get, _set, value) => () => {
+	const websockets = get(websocketsAtom);
+	websockets.updateData({ ...websockets.data, ...value });
+});
 
 const Selectors = {
 	getHomeScoreSelector,
@@ -80,6 +98,14 @@ const Selectors = {
 	getLockedModeAtom,
 	setLockedModeAtom,
 	getConnectionAtom,
+	getConnectioniIitializedSelector,
+	getConnectionConnectedSelector,
+	getConnectionConnectingSelector,
+	getConnectionSettingsSelector,
+	setConnectionSettingsAtom,
 	getWebsocketAtom,
+	getWebsocketStatusSelector,
+	getWebsocketDataSelector,
+	setWebsocketDataAtom,
 };
 export default Selectors;
