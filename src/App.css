@@ -34,7 +34,7 @@ body {
   text-transform: uppercase;
 }
 
-.scoreboard {
+.wrapper {
   background: #333;
   width: 700px;
   margin: 70px auto;
@@ -60,17 +60,17 @@ body {
   font-weight: normal;
 }
 
-.header-lock-toggle {
-  float: left;
-  margin-right: 10px;
-  color: #e57373;
+.icon-clickable {
   cursor: pointer;
 }
 
-.header-unlock-toggle {
+.icon-left {
   float: left;
   margin-right: 10px;
-  cursor: pointer;
+}
+
+.icon-red {
+  color: #e57373;
 }
 
 .score {
@@ -411,7 +411,7 @@ body {
   flex-grow: 1;width: 95%;
   border-width: 0 0 1px 0;
   border-radius: 5px;
-  background-color: #333;
+  background-color: #2f2f2f;
   border-style: none;
   text-shadow: none;
   text-transform: uppercase;
@@ -435,6 +435,7 @@ body {
 .stopwatch-time {
   font-family: monospace;
   font-size: 2em;
+  cursor: default;
 }
 
 .stopwatch-stop {
