@@ -177,13 +177,13 @@ const Scoreboard = () => {
 			<Wrapper
 				elements={{
 					top: (
-						<a
+						<div
 							className={`${headerIconClass}`}
 							title={`${isLocked ? 'Unlock Edit Mode' : 'Lock Edit Mode'}`}
 							onClick={onLockButton}
 						>
 							{isLocked ? <RiLockLine /> : <RiLockUnlockLine />}
-						</a>
+						</div>
 					),
 					bottom: <GameClock />,
 				}}
@@ -205,13 +205,13 @@ const Scoreboard = () => {
 		<Wrapper
 			elements={{
 				top: (
-					<a
+					<div
 						className={`${headerIconClass}`}
 						title={`${isLocked ? 'Unlock Edit Mode' : 'Lock Edit Mode'}`}
 						onClick={onLockButton}
 					>
 						{isLocked ? <RiLockLine /> : <RiLockUnlockLine />}
-					</a>
+					</div>
 				),
 				bottom: <GameClock />,
 			}}

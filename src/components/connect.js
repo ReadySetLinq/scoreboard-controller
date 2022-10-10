@@ -3,6 +3,7 @@ import { useAtomValue } from 'jotai';
 import { TbPlugConnectedX, TbPlugConnected } from 'react-icons/tb';
 
 import { getConnectionAtom, getConnectionConnectedSelector, getConnectionConnectingSelector } from '../jotai/selectors';
+import Wrapper from './wrapper';
 
 const Connect = () => {
 	const getConnectionState = useAtomValue(getConnectionAtom);
@@ -29,11 +30,11 @@ const Connect = () => {
 	}, [getConnectionState, isConnected, isConnecting]);
 
 	return (
-		<div className='scoreboard'>
-			<div className='header'>
-				<a className={headerIconClass}>{state.dots % 2 ? <TbPlugConnectedX /> : <TbPlugConnected />}</a>
-				<h1>Scoreboard</h1>
-			</div>
+		<Wrapper
+			elements={{
+				top: <div className={headerIconClass}>{state.dots % 2 ? <TbPlugConnectedX /> : <TbPlugConnected />}</div>,
+			}}
+		>
 			<div className='buttons'>
 				<div className={`confirm-box show`}>
 					<div className='confirm-box__content'>
@@ -43,7 +44,7 @@ const Connect = () => {
 					</div>
 				</div>
 			</div>
-		</div>
+		</Wrapper>
 	);
 };
 
