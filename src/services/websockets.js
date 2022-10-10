@@ -34,15 +34,24 @@ export class Websockets {
 	 * @function connect
 	 * This function establishes the connect with the websocket and also ensures constant reconnection if connection closes
 	 */
-	connect = () => {
+	connect = (networkSettings) => {
 		this.status = {
 			autoReconnect: true,
 			connecting: false,
 			connected: false,
 		};
+		if (networkSettings) this.data = { ...this.data, ...networkSettings };
+		if (this.data.port === 0) {
+			Emitter.emit('ws.onError', {
+				event: new Error('Invalid port'),
+			});
+			return;
+		}
 
 		try {
-			if (!this.ws) this.ws = new WebSocket(`ws://${this.data.ip}:${this.data.port}`);
+			if (this.ws) this.ws.close();
+
+			this.ws = new WebSocket(`ws://${this.data.ip}:${this.data.port}`);
 
 			// websocket onopen event listener
 			this.ws.onopen = () => {
@@ -65,8 +74,9 @@ export class Websockets {
 
 			// websocket onclose event listener
 			this.ws.onclose = (ev) => {
-				console.log('ws onclose', ev.currentTarget);
+				console.info('ws onclose', ev.currentTarget);
 				this.timeout = this.timeout + this.timeout; //increment retry interval
+				if (this.timeout > 30000) this.timeout = 1500; // if retry interval is greater than 30 seconds set it to 30 seconds
 
 				if (this.status.autoReconnect) {
 					Emitter.emit('ws.onClose', {
@@ -85,7 +95,7 @@ export class Websockets {
 
 			// websocket onerror event listener
 			this.ws.onerror = (ev) => {
-				console.log('ws onclose', ev.currentTarget);
+				console.error('ws onclose', ev.currentTarget);
 				Emitter.emit('ws.onError', {
 					event: ev,
 				});

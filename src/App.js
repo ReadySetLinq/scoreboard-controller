@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { RiLockLine, RiLockUnlockLine, RiDeleteBinLine, RiEditBoxLine } from 'react-icons/ri';
 import { generate } from 'shortid';
+import { RiLockLine, RiLockUnlockLine, RiDeleteBinLine, RiEditBoxLine } from 'react-icons/ri';
+import { TbPlugConnectedX, TbPlugConnected } from 'react-icons/tb';
 
 import { urlParamsAtom, defaultButton } from './jotai/atoms';
 import {
@@ -20,8 +21,9 @@ import {
 	setButtonAtom,
 	getLockedModeAtom,
 	setLockedModeAtom,
-	getConnectionSettingsSelector,
-	setConnectionSettingsAtom,
+	getConnectionAtom,
+	getConnectionConnectedSelector,
+	getConnectionConnectingSelector,
 } from './jotai/selectors';
 
 import Emitter from './services/emitter';
@@ -629,13 +631,63 @@ const AddButtonForm = () => {
 	);
 };
 
-const App = () => {
-	const [urlParams, setUrlParams] = useAtom(urlParamsAtom);
-	const connectionSettings = useAtomValue(getConnectionSettingsSelector);
-	const setConnectionSettings = useSetAtom(setConnectionSettingsAtom);
+const Connect = () => {
+	const getConnectionState = useAtomValue(getConnectionAtom);
+	const isConnected = useAtomValue(getConnectionConnectedSelector);
+	const isConnecting = useAtomValue(getConnectionConnectingSelector);
+	const [state, setState] = useState({ base: 'Connecting', dots: 0, message: '' });
 
 	useEffect(() => {
-		let settings = { ...connectionSettings };
+		const interval = setInterval(() => {
+			const dots = state.dots === 3 ? 0 : state.dots + 1;
+			let message = '';
+			for (let i = 0; i < dots; i++) message += '.';
+			setState((oldState) => ({ ...oldState, dots: dots, message: message }));
+		}, 500);
+
+		return () => clearInterval(interval);
+	}, [state.dots]);
+
+	useEffect(() => {
+		if (!isConnected && !isConnecting) {
+			getConnectionState.connect();
+		}
+	}, [getConnectionState, isConnected, isConnecting]);
+
+	return (
+		<div className='scoreboard'>
+			<div className='header'>
+				<a className={state.dots % 3 ? 'header-lock-toggle' : 'header-unlock-toggle'}>
+					{state.dots % 2 ? <TbPlugConnectedX /> : <TbPlugConnected />}
+				</a>
+				<h1>Scoreboard</h1>
+			</div>
+			<div className='buttons'>
+				<div className={`confirm-box show`}>
+					<div className='confirm-box__content'>
+						<div className='confirm-box__title error'>{`${state.base}${state.message}`}</div>
+						<div className='confirm-box__message'>{`Please make sure the Xpression server is running and connected to the same network.\n\nChange the IP or Port by providing a URL parameter for ip or port`}</div>
+						<div className='confirm-box__actions'></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const App = () => {
+	const [urlParams, setUrlParams] = useAtom(urlParamsAtom);
+	const getConnectionState = useAtomValue(getConnectionAtom);
+	const isConnected = useAtomValue(getConnectionConnectedSelector);
+	const [startup, setStartup] = useState(true);
+
+	useEffect(() => {
+		const urlSearchParams = new URLSearchParams(window.location.search);
+		if (urlParams !== urlSearchParams) setUrlParams(urlParams);
+	}, [setUrlParams, urlParams]);
+
+	useEffect(() => {
+		let settings = { ...getConnectionState.settings };
 
 		if (urlParams.has('ip')) settings.ip = urlParams.get('ip');
 		try {
@@ -646,18 +698,16 @@ const App = () => {
 		if (urlParams.has('password')) settings.password = urlParams.get('password');
 
 		const hasUpdated =
-			connectionSettings.ip !== settings.ip ||
-			connectionSettings.port !== settings.port ||
-			connectionSettings.username !== settings.userName ||
-			connectionSettings.password !== settings.password;
+			getConnectionState.settings.ip !== settings.ip ||
+			getConnectionState.settings.port !== settings.port ||
+			getConnectionState.settings.username !== settings.userName ||
+			getConnectionState.settings.password !== settings.password;
 
-		if (hasUpdated) setConnectionSettings(settings);
-	}, [urlParams, connectionSettings, setConnectionSettings]);
+		if (startup || hasUpdated) getConnectionState.updateSettings(settings);
+		if (startup) setStartup(false);
+	}, [urlParams, getConnectionState, startup]);
 
-	useEffect(() => {
-		const urlSearchParams = new URLSearchParams(window.location.search);
-		if (urlParams !== urlSearchParams) setUrlParams(urlParams);
-	}, [setUrlParams, urlParams]);
+	if (!isConnected) return <Connect />;
 
 	return <Scoreboard />;
 };

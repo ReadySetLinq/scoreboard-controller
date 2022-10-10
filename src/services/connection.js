@@ -6,7 +6,7 @@ import Emitter from './emitter';
 
 export const defaultNetworkSettingsData = {
 	ip: 'localhost',
-	port: 8080,
+	port: 0,
 	userName: 'brtf',
 	password: '',
 };
@@ -88,7 +88,7 @@ export class Connection {
 		this.wsReadyState = WebSocket.CLOSED;
 		this.wsConnected = false;
 
-		webSockets.connect();
+		webSockets.connect(this.settings);
 
 		Emitter.emit('network.connecting', {});
 	};

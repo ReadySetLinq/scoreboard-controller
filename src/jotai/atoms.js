@@ -53,6 +53,7 @@ export const initialWebsocketsState = webSockets;
 export const websocketsAtom = atom(initialWebsocketsState);
 
 export const initialUrlParams = new URLSearchParams(window.location.search);
+console.log('initialUrlParams', initialUrlParams.get('ip'));
 
 export const urlParamsAtom = atom(initialUrlParams);
 
