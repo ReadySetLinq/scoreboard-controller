@@ -55,6 +55,7 @@ export const defaultNetworkSettingsData = {
 export const defaultConnection = {
 	connected: false,
 	connecting: false,
+	isStarted: false,
 	displayMsg: '',
 };
 

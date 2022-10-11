@@ -24,7 +24,7 @@ export const setGameClockAtom = atom(null, (_get, set, value) =>
 	set(widgetsAtom, (prev) => ({ ...prev, gameClock: { ...prev.gameClock, ...value } })),
 );
 
-export const getButtonsSelector = selectAtom(buttonsAtom, (widget) => widget);
+export const getButtonsSelector = selectAtom(buttonsAtom, (button) => button);
 
 export const setButtonsAtom = atom(null, (_get, set, value) => set(buttonsAtom, (prev) => [...prev, ...value]));
 
@@ -67,11 +67,13 @@ export const setLockedModeAtom = atom(null, (_get, set, value) => set(lockedMode
 // Connection
 export const getConnectionAtom = atom((get) => get(connectionAtom));
 
-export const getIsConnectedSelector = selectAtom(connectionAtom, (widget) => widget.connected);
+export const getIsConnectedSelector = selectAtom(connectionAtom, (connection) => connection.connected);
 
-export const getIsConnectingSelector = selectAtom(connectionAtom, (widget) => widget.connecting);
+export const getIsConnectingSelector = selectAtom(connectionAtom, (connection) => connection.connecting);
 
-export const getConnectionMessageSelector = selectAtom(connectionAtom, (widget) => widget.displayMsg);
+export const getIsStartedSelector = selectAtom(connectionAtom, (connection) => connection.isStarted);
+
+export const getConnectionMessageSelector = selectAtom(connectionAtom, (connection) => connection.displayMsg);
 
 export const setConnectedAtom = atom(null, (get, set, item = false) => {
 	const data = item ? { connected: true, connecting: false } : { connected: false };
@@ -82,6 +84,10 @@ export const setIsConnectingAtom = atom(null, (get, set, item = false) => {
 	const data = item ? { connecting: true, connected: false } : { connecting: false };
 	return set(connectionAtom, { ...get(connectionAtom), ...data });
 });
+
+export const setIsStartedAtom = atom(null, (get, set, item = false) =>
+	set(connectionAtom, { ...get(connectionAtom), ...{ isStarted: item } }),
+);
 
 export const setConnectionMessageAtom = atom(null, (get, set, item = '') =>
 	set(connectionAtom, { ...get(connectionAtom), ...{ displayMsg: item } }),
@@ -108,9 +114,11 @@ const Selectors = {
 	getConnectionAtom,
 	getIsConnectedSelector,
 	getIsConnectingSelector,
+	getIsStartedSelector,
 	getConnectionMessageSelector,
 	setConnectedAtom,
 	setIsConnectingAtom,
+	setIsStartedAtom,
 	setConnectionMessageAtom,
 };
 export default Selectors;

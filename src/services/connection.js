@@ -17,6 +17,7 @@ export class Connection {
 	connecting = false;
 	loggedIn = false;
 	autoReconnect = true;
+	displayMsg = 'A network connection is required!';
 	wsReadyState = WebSocket.CLOSED;
 	wsConnected = false;
 	reconnectTime = 1500;
@@ -29,8 +30,10 @@ export class Connection {
 			Emitter.emit('conn.status', {
 				connected: this.connected,
 				connecting: this.connecting,
+				displayMsg: this.displayMsg,
 			}),
 		);
+		Emitter.on('conn.getDisplayMsg', () => Emitter.emit('conn.displayMsg', this.displayMsg));
 		Emitter.on('conn.updateSettings', this.updateSettings);
 		Emitter.on('conn.connect', this.connect);
 		Emitter.on('conn.disconnect', this.disconnect);
@@ -90,9 +93,10 @@ export class Connection {
 		this.wsReadyState = WebSocket.CLOSED;
 		this.wsConnected = false;
 
+		this.displayMsg = 'Attempting to connect...';
 		webSockets.connect(this.settings);
 
-		Emitter.emit('network.connecting', {});
+		Emitter.emit('network.connecting', this.displayMsg);
 	};
 
 	disconnect = () =>
@@ -151,7 +155,8 @@ export class Connection {
 		this.connecting = false;
 		this.connected = true;
 		this.autoReconnect = true;
-		Emitter.emit('network.connected', this.connected);
+		this.displayMsg = 'Connected!';
+		Emitter.emit('network.connected', this.displayMsg);
 		clearInterval(this.reconnectInterval);
 
 		// Send login message with our saved login data
@@ -164,12 +169,9 @@ export class Connection {
 	onClose = ({ event = { reason: '' }, timeout = 0 }) => {
 		this.connecting = false;
 		this.connected = false;
-		this.reconnectTime = timeout;
-		this.reconnectInterval = window.setInterval(() => {
-			this.reconnectTime -= 1000;
-			Emitter.emit('network.connectionMsg', this.displayMsg);
-		}, 1000);
+		this.displayMsg = ReconnectMsg(timeout, this.autoReconnect, event.reason);
 
+		Emitter.emit('network.connectionMsg', this.displayMsg);
 		Emitter.emit('network.disconnected', this.displayMsg);
 	};
 
@@ -178,6 +180,8 @@ export class Connection {
 		clearInterval(this.reconnectInterval);
 		this.connecting = false;
 		this.connected = false;
+		this.displayMsg = 'Connection encountered error!';
+		Emitter.emit('network.connectionMsg', this.displayMsg);
 	};
 
 	// websocket onmessage event listener
@@ -354,6 +358,14 @@ export class Connection {
 										uuid: _msg.data.value.uuid,
 										response: _msg.data.value.response,
 									});
+								} else {
+									// Send custom UUID response
+									Emitter.emit(`${_msg.data.value.uuid}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
 								}
 								break;
 							default:
@@ -379,7 +391,7 @@ export class Connection {
 				case 'server':
 					if (objHas.call(_msg, 'data') && objHas.call(_msg.data, 'message')) {
 						if (isEqual(_msg.data.message, 'connected')) {
-							Emitter.emit('network.connected', {});
+							Emitter.emit('network.connected', this.displayMsg);
 						}
 					}
 
@@ -394,5 +406,14 @@ export class Connection {
 		}
 	};
 }
+
+const ReconnectMsg = (timeout = 0, autoReconnect = true, reason = '') => {
+	const attemptTime = Math.min(10000 / 1000, (timeout + timeout) / 1000);
+	let message = 'Connection closed.';
+	if (webSockets.ws !== null && autoReconnect && attemptTime > 0)
+		message = `${message} Reconnect will be attempted in ${attemptTime} second${attemptTime > 1 ? 's' : ''}. ${reason}`;
+
+	return message.trim();
+};
 
 export default Connection;

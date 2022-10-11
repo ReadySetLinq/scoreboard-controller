@@ -261,7 +261,7 @@ export const events = {
 			}),
 		);
 	},
-	'xpn.SetTextListWidgetItemIndex': ({ uuid = null, name = '', value = '' }) => {
+	'xpn.SetTextListWidgetItemIndex': ({ uuid = null, name = '', index = '0' }) => {
 		Emitter.emit(
 			'conn.sendMessage',
 			JSON.stringify({
@@ -269,7 +269,7 @@ export const events = {
 				data: {
 					category: 'widget',
 					action: 'SetTextListWidgetItemIndex',
-					properties: { uuid, name, value },
+					properties: { uuid, name, index },
 				},
 			}),
 		);

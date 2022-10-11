@@ -21,12 +21,15 @@ export const getStyle = (oElm, strCssRule) => {
 	return strValue;
 };
 
+export const isNumber = (n) => !isNaN(parseFloat(n)) && !isNaN(n - 0);
+
 export const Utilities = {
 	webSockets,
 	connection,
 	objHas,
 	zeroPad,
 	getStyle,
+	isNumber,
 };
 
 export default Utilities;

@@ -77,7 +77,7 @@ export class Websockets {
 			this.ws.onclose = (ev) => {
 				console.info('websockets connect ws onclose', ev.currentTarget);
 				this.timeout = this.timeout + this.timeout; //increment retry interval
-				if (this.timeout > 30000) this.timeout = 1500; // if retry interval is greater than 30 seconds set it to 30 seconds
+				if (this.timeout > 70000) this.timeout = 1500; // if retry interval is greater than 30 seconds set it to 30 seconds
 
 				if (this.status.autoReconnect) {
 					Emitter.emit('ws.onClose', {

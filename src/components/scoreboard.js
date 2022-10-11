@@ -18,7 +18,7 @@ import {
 	setLockedModeAtom,
 } from '../jotai/selectors';
 
-import { getStyle } from '../services/utilities';
+import { getStyle, isNumber } from '../services/utilities';
 import Emitter from '../services/emitter';
 import Wrapper from './wrapper';
 import GameClock from './gameClock';
@@ -26,6 +26,7 @@ import Button from './button';
 import Period from './period';
 import Score from './score';
 import ConfirmBox from './confirmBox';
+import Load from './load';
 import AddButtonForm from './addButtonForm';
 import EditButtonForm from './editButtonForm';
 
@@ -48,7 +49,15 @@ const Scoreboard = () => {
 		onConfirm: null,
 		onCancel: null,
 	});
+	const [loadState, setLoadState] = useState({
+		gameClock: true, // CHANGE THIS BACK ONCE gameClock LOGIC IS DONE
+		period: false,
+		homeScore: false,
+		awayScore: false,
+		buttons: false,
+	});
 	const headerIconClass = useMemo(() => `icon-left icon-clickable ${isLocked ? 'icon-red' : ''}`, [isLocked]);
+	const isLoading = useMemo(() => Object.values(loadState).some((value) => value === false), [loadState]);
 	let updateTimeouts = useRef({
 		periodName: null,
 		periodValue: null,
@@ -137,28 +146,28 @@ const Scoreboard = () => {
 	useEffect(() => {
 		if (!isMounted.current) return;
 
-		if (updateTimeouts.current.homeScoreName) clearTimeout(updateTimeouts.current.periodValue);
+		if (updateTimeouts.current.periodValue) clearTimeout(updateTimeouts.current.periodValue);
 
 		const _tmpUUID_set = `scoreboard-setTextListWidgetValues-${generate()}`;
 		const _tmpUUID_index = `scoreboard-setTextListWidgetItemIndex-${generate()}`;
 		Emitter.once(_tmpUUID_set, () => {
 			Emitter.once(_tmpUUID_index, ({ response }) => {
-				if (period.value !== response) {
+				if (response !== false && period.value !== response) {
 					setPeriod({ value: response });
 				}
 			});
 
 			Emitter.emit('xpn.SetTextListWidgetItemIndex', {
 				uuid: _tmpUUID_index,
-				name: homeScore.widgetName,
+				name: period.widgetName,
 				index: '0',
 			});
 		});
 
 		Emitter.emit('xpn.SetTextListWidgetValues', {
 			uuid: _tmpUUID_set,
-			name: homeScore.widgetName,
-			values: homeScore.value,
+			name: period.widgetName,
+			values: period.value,
 		});
 
 		return () => {
@@ -174,11 +183,13 @@ const Scoreboard = () => {
 
 		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
-			const returnedValue = parseInt(response, 0);
-			const currentValue = parseInt(homeScore.value, 0);
-			if (returnedValue !== currentValue) {
-				setHomeScore({ value: returnedValue });
-				updateScroll(homeScore.widgetName);
+			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
+				const returnedValue = parseInt(response, 0);
+				const currentValue = parseInt(homeScore.value, 0);
+				if (returnedValue !== currentValue) {
+					setHomeScore({ value: returnedValue });
+					updateScroll(homeScore.widgetName);
+				}
 			}
 		});
 
@@ -201,11 +212,13 @@ const Scoreboard = () => {
 
 		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
-			const returnedValue = parseInt(response, 0);
-			const currentValue = parseInt(awayScore.value, 0);
-			if (returnedValue !== currentValue) {
-				setHomeScore({ value: returnedValue });
-				updateScroll(awayScore.widgetName);
+			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
+				const returnedValue = parseInt(response, 0);
+				const currentValue = parseInt(awayScore.value, 0);
+				if (returnedValue !== currentValue) {
+					setAwayScore({ value: returnedValue });
+					updateScroll(awayScore.widgetName);
+				}
 			}
 		});
 
@@ -230,7 +243,9 @@ const Scoreboard = () => {
 
 		const _tmpUUID = `scoreboard-getTextListWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
-			setPeriod({ value: response });
+			if (response !== false) setPeriod({ value: response });
+			else setPeriod({ value: '' });
+			setLoadState((prevState) => ({ ...prevState, period: true }));
 		});
 
 		updateTimeouts.current.periodName = setTimeout(() => {
@@ -253,7 +268,11 @@ const Scoreboard = () => {
 
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
-			setHomeScore({ value: response });
+			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
+				const returnedValue = parseInt(response, 0);
+				setHomeScore({ value: returnedValue });
+			}
+			setLoadState((prevState) => ({ ...prevState, homeScore: true }));
 		});
 
 		updateTimeouts.current.homeScoreName = setTimeout(() => {
@@ -276,7 +295,12 @@ const Scoreboard = () => {
 
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
-			setAwayScore({ value: response });
+			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
+				const returnedValue = parseInt(response, 0);
+				setAwayScore({ value: returnedValue });
+			}
+
+			setLoadState((prevState) => ({ ...prevState, awayScore: true }));
 		});
 
 		updateTimeouts.current.awayScoreName = setTimeout(() => {
@@ -291,6 +315,13 @@ const Scoreboard = () => {
 			clearTimeout(updateTimeouts.current.awayScoreName);
 		};
 	}, [awayScore.widgetName, setAwayScore]);
+
+	useEffect(() => {
+		if (!isMounted.current) return;
+
+		const buttonsLoaded = Object.values(buttons).some((value) => parseInt(value.xpnTakeId) !== 0);
+		if (buttonsLoaded) setLoadState((prevState) => ({ ...prevState, buttons: true }));
+	}, [buttons]);
 
 	if (confirmState.show) {
 		return (
@@ -319,6 +350,10 @@ const Scoreboard = () => {
 				</div>
 			</Wrapper>
 		);
+	}
+
+	if (isLoading) {
+		return <Load title='Syncing with Xpression' message={'Please wait.'} />;
 	}
 
 	return (
