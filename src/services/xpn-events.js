@@ -235,6 +235,71 @@ export const events = {
 			}),
 		);
 	},
+	'xpn.GetTextListWidgetValue': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'GetTextListWidgetValue',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
+	'xpn.SetTextListWidgetValues': ({ uuid = null, name = '', values = '0' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'SetTextListWidgetValues',
+					properties: { uuid, name, values },
+				},
+			}),
+		);
+	},
+	'xpn.SetTextListWidgetItemIndex': ({ uuid = null, name = '', value = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'SetTextListWidgetItemIndex',
+					properties: { uuid, name, value },
+				},
+			}),
+		);
+	},
+	'xpn.SetTextListWidgetToValue': ({ uuid = null, name = '', index = '0' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'SetTextListWidgetToValue',
+					properties: { uuid, name, index },
+				},
+			}),
+		);
+	},
+	'xpn.ClearTextListWidget': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'ClearTextListWidget',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
 };
 
 export default XPN_Events;

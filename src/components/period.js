@@ -3,14 +3,13 @@ import { useAtomValue } from 'jotai';
 import { isEqual } from 'lodash';
 
 import { getLockedModeAtom } from '../jotai/selectors';
-import Counter from './counter';
 
-const Score = (props) => {
+const Period = (props) => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 
 	return (
-		<div className='score'>
-			<div className='score-name'>
+		<div className='period'>
+			<div className='period-name'>
 				<input
 					className={isLocked ? 'disabled' : ''}
 					disabled={isLocked}
@@ -20,11 +19,18 @@ const Score = (props) => {
 					onChange={(event) => props.onNameChange(event.target.value)}
 				/>
 			</div>
-			<div className='score-score'>
-				<Counter title={`score-input-${props.widgetName}`} onChange={props.onScoreChange} value={props.value} />
+			<div className='period-score'>
+				<input
+					className={isLocked ? 'disabled' : ''}
+					disabled={isLocked}
+					type='text'
+					value={props.value}
+					placeholder='Widget Value'
+					onChange={(event) => props.onTextChange(event.target.value)}
+				/>
 			</div>
 		</div>
 	);
 };
 
-export default React.memo(Score, isEqual);
+export default React.memo(Period, isEqual);

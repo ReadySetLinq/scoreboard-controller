@@ -1,16 +1,28 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useAtomValue } from 'jotai';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { TbPlugConnectedX, TbPlugConnected } from 'react-icons/tb';
 
-import { getConnectionAtom, getConnectionConnectedSelector, getConnectionConnectingSelector } from '../jotai/selectors';
+import {
+	getConnectionAtom,
+	getIsConnectedSelector,
+	getIsConnectingSelector,
+	setConnectedAtom,
+	setIsConnectingAtom,
+	setConnectionMessageAtom,
+} from '../jotai/selectors';
 import Wrapper from './wrapper';
+import Emitter from '../services/emitter';
 
 const Connect = () => {
 	const getConnectionState = useAtomValue(getConnectionAtom);
-	const isConnected = useAtomValue(getConnectionConnectedSelector);
-	const isConnecting = useAtomValue(getConnectionConnectingSelector);
+	const isConnected = useAtomValue(getIsConnectedSelector);
+	const isConnecting = useAtomValue(getIsConnectingSelector);
+	const setConnectedStore = useSetAtom(setConnectedAtom);
+	const setIsConnectingStore = useSetAtom(setIsConnectingAtom);
+	const setConnectionMessageStore = useSetAtom(setConnectionMessageAtom);
 	const [state, setState] = useState({ base: 'Connecting', dots: 0, message: '' });
 	const headerIconClass = useMemo(() => `icon-left ${state.dots % 3 ? 'icon-red' : ''}`, [state.dots]);
+	let isMounted = useRef(false);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -24,10 +36,41 @@ const Connect = () => {
 	}, [state.dots]);
 
 	useEffect(() => {
+		if (!isMounted.current) return;
+
 		if (!isConnected && !isConnecting) {
-			getConnectionState.connect();
+			console.log('connect: not connected and not connecting');
 		}
 	}, [getConnectionState, isConnected, isConnecting]);
+
+	useEffect(() => {
+		isMounted.current = true;
+
+		Emitter.on('network.connecting', (displayMsg = '') => {
+			if (!isMounted.current) return;
+			console.log('network.connecting', displayMsg);
+			setConnectedStore(false);
+			setIsConnectingStore(true);
+			setConnectionMessageStore(displayMsg);
+		});
+
+		Emitter.on('network.connected', (displayMsg = '') => {
+			if (!isMounted.current) return;
+			console.log('network.connected', displayMsg);
+			setConnectedStore(true);
+			setIsConnectingStore(false);
+			setConnectionMessageStore(displayMsg);
+		});
+
+		if (!isConnected && !isConnecting) Emitter.emit('conn.connect', {});
+
+		return () => {
+			isMounted.current = false;
+			Emitter.off('network.connecting');
+			Emitter.off('network.connected');
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<Wrapper

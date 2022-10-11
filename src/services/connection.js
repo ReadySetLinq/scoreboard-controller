@@ -15,6 +15,7 @@ export class Connection {
 	initialized = false;
 	connected = false;
 	connecting = false;
+	loggedIn = false;
 	autoReconnect = true;
 	wsReadyState = WebSocket.CLOSED;
 	wsConnected = false;
@@ -72,6 +73,7 @@ export class Connection {
 		if (!isEqual(settings, this.settings)) {
 			this.settings = { ...defaultNetworkSettingsData, ...settings };
 			webSockets.updateData(settings);
+			this.reconnect();
 		}
 	};
 
@@ -128,7 +130,7 @@ export class Connection {
 		});
 
 	reconnect = () => {
-		if (this.connected) this.disconnect().then(() => this.connect());
+		if (this.connected || this.connecting) this.disconnect().then(() => this.connect());
 	};
 
 	sendMessage = (msg) => {
@@ -149,12 +151,33 @@ export class Connection {
 		this.connecting = false;
 		this.connected = true;
 		this.autoReconnect = true;
+		Emitter.emit('network.connected', this.connected);
 		clearInterval(this.reconnectInterval);
 
 		// Send login message with our saved login data
 		this.sendMessage(
 			`{'service': 'login', 'data': {'userName': '${this.settings.userName}', 'password': '${this.settings.password}'}}`,
 		);
+	};
+
+	// websocket onclose event listener
+	onClose = ({ event = { reason: '' }, timeout = 0 }) => {
+		this.connecting = false;
+		this.connected = false;
+		this.reconnectTime = timeout;
+		this.reconnectInterval = window.setInterval(() => {
+			this.reconnectTime -= 1000;
+			Emitter.emit('network.connectionMsg', this.displayMsg);
+		}, 1000);
+
+		Emitter.emit('network.disconnected', this.displayMsg);
+	};
+
+	// websocket onerror event listener
+	onError = () => {
+		clearInterval(this.reconnectInterval);
+		this.connecting = false;
+		this.connected = false;
 	};
 
 	// websocket onmessage event listener
@@ -167,10 +190,12 @@ export class Connection {
 						switch (_msg.data.type) {
 							case 'login': {
 								const _loginMsg = _msg.data.message.trim();
-								if (_loginMsg === `Logged in as user: ${this.settings.userName}`)
+								if (_loginMsg === `Logged in as user: ${this.settings.userName}`) {
 									Emitter.emit('xpression.loggedIn', {
 										data: _msg.data,
 									});
+									this.loggedIn = true;
+								}
 								break;
 							}
 							case 'error': {
@@ -220,6 +245,109 @@ export class Connection {
 								});
 
 								break;
+							case 'widget':
+								// Check for generic responses
+								if (isEqual(_msg.data.action, 'EditCounterWidget')) {
+									Emitter.emit(`editCounterWidget-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'IncreaseCounterWidget')) {
+									Emitter.emit(`increaseCounterWidget-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'DecreaseCounterWidget')) {
+									Emitter.emit(`decreaseCounterWidget-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'GetCounterWidgetValue')) {
+									Emitter.emit(`getCounterWidgetValue-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'GetClockWidgetTimerValue')) {
+									Emitter.emit(`getClockWidgetTimerValue-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'GetClockWidgetValue')) {
+									Emitter.emit(`getClockWidgetValue-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'StartClockWidget')) {
+									Emitter.emit(`startClockWidget-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'StopClockWidget')) {
+									Emitter.emit(`stopClockWidget-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'ResetClockWidget')) {
+									Emitter.emit(`resetClockWidget-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'ResetClockWidget')) {
+									Emitter.emit(`resetClockWidget-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'EditClockWidgetStartTime')) {
+									Emitter.emit(`editClockWidgetStartTime-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'SetClockWidgetTimerValue')) {
+									Emitter.emit(`setClockWidgetTimerValue-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'SetClockWidgetCallback')) {
+									Emitter.emit(`SetClockWidgetCallback-${_msg.data.value.name}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								}
+
+								// Send custom UUID response
+								Emitter.emit(`${_msg.data.value.uuid}`, {
+									uuid: _msg.data.value.uuid,
+									name: _msg.data.value.name,
+									action: _msg.data.action,
+									response: _msg.data.value.response,
+								});
+								break;
 							case 'main':
 								if (isEqual(_msg.data.action, 'start')) {
 									Emitter.emit('xpression.controllerStarted', {
@@ -229,12 +357,21 @@ export class Connection {
 								}
 								break;
 							default:
-								Emitter.emit(`${_msg.data.value.uuid}`, {
-									uuid: _msg.data.value.uuid,
-									takeID: _msg.data.value.takeID,
-									action: _msg.data.action,
-									response: _msg.data.value.response,
-								});
+								if (_msg.data.value.name) {
+									Emitter.emit(`${_msg.data.value.uuid}`, {
+										uuid: _msg.data.value.uuid,
+										name: _msg.data.value.name,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								} else {
+									Emitter.emit(`${_msg.data.value.uuid}`, {
+										uuid: _msg.data.value.uuid,
+										takeID: _msg.data.value.takeID,
+										action: _msg.data.action,
+										response: _msg.data.value.response,
+									});
+								}
 								break;
 						}
 					}
@@ -255,26 +392,6 @@ export class Connection {
 					break;
 			}
 		}
-	};
-
-	// websocket onclose event listener
-	onClose = ({ event = { reason: '' }, timeout = 0 }) => {
-		this.connecting = false;
-		this.connected = false;
-		this.reconnectTime = timeout;
-		this.reconnectInterval = window.setInterval(() => {
-			this.reconnectTime -= 1000;
-			Emitter.emit('network.connectionMsg', this.displayMsg);
-		}, 1000);
-
-		Emitter.emit('network.disconnected', this.displayMsg);
-	};
-
-	// websocket onerror event listener
-	onError = () => {
-		clearInterval(this.reconnectInterval);
-		this.connecting = false;
-		this.connected = false;
 	};
 }
 

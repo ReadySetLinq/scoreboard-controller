@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
+import { isEqual } from 'lodash';
 import { RiDeleteBinLine, RiEditBoxLine } from 'react-icons/ri';
 
 import { getButtonSelector, setButtonAtom, getLockedModeAtom } from '../jotai/selectors';
@@ -18,7 +19,6 @@ const Button = (props) => {
 		const _tmpUUID = `scoreboard-setTakeItemOnline-${generate()}`;
 
 		Emitter.once(_tmpUUID, (data) => {
-			console.log('onButtonClick', _tmpUUID, data);
 			setButton({ online: !!data.response });
 		});
 
@@ -62,4 +62,4 @@ const Button = (props) => {
 	);
 };
 
-export default Button;
+export default React.memo(Button, isEqual);

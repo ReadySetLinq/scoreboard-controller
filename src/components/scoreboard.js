@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
+import { isEqual } from 'lodash';
 import { RiLockLine, RiLockUnlockLine } from 'react-icons/ri';
 
 import { defaultButton } from '../jotai/atoms';
 import {
+	getPeriodSelector,
 	getHomeScoreSelector,
 	getAwayScoreSelector,
+	setPeriodAtom,
 	setHomeScoreAtom,
 	setAwayScoreAtom,
 	getButtonsSelector,
@@ -20,6 +23,7 @@ import Emitter from '../services/emitter';
 import Wrapper from './wrapper';
 import GameClock from './gameClock';
 import Button from './button';
+import Period from './period';
 import Score from './score';
 import ConfirmBox from './confirmBox';
 import AddButtonForm from './addButtonForm';
@@ -28,6 +32,8 @@ import EditButtonForm from './editButtonForm';
 const Scoreboard = () => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const setIsLocked = useSetAtom(setLockedModeAtom);
+	const period = useAtomValue(getPeriodSelector);
+	const setPeriod = useSetAtom(setPeriodAtom);
 	const homeScore = useAtomValue(getHomeScoreSelector);
 	const setHomeScore = useSetAtom(setHomeScoreAtom);
 	const awayScore = useAtomValue(getAwayScoreSelector);
@@ -43,6 +49,13 @@ const Scoreboard = () => {
 		onCancel: null,
 	});
 	const headerIconClass = useMemo(() => `icon-left icon-clickable ${isLocked ? 'icon-red' : ''}`, [isLocked]);
+	let updateTimeouts = useRef({
+		periodName: null,
+		periodValue: null,
+		homeScoreName: null,
+		awayScoreName: null,
+	});
+	let isMounted = useRef(false);
 
 	const updateScroll = (title) => {
 		const input = document.getElementById(`score-input-${title}`);
@@ -52,6 +65,12 @@ const Scoreboard = () => {
 			if (textLength > 5) input.scrollLeft = paddingRight + textLength * 1.5;
 			else input.scrollLeft = paddingRight / 1.5;
 		}
+	};
+
+	const onPeriodChange = (value) => {
+		if (value === 'reset') {
+			setPeriod({ value: '1st' });
+		} else setPeriod({ value: value });
 	};
 
 	const onScoreChange = (title, increase, amount = 0) => {
@@ -103,12 +122,64 @@ const Scoreboard = () => {
 	const onLockButton = () => setIsLocked(!isLocked);
 
 	useEffect(() => {
+		isMounted.current = true;
+
+		return () => {
+			isMounted.current = false;
+			clearTimeout(updateTimeouts.current.periodName);
+			clearTimeout(updateTimeouts.current.periodValue);
+			clearTimeout(updateTimeouts.current.homeScoreName);
+			clearTimeout(updateTimeouts.current.awayScoreName);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		if (!isMounted.current) return;
+
+		if (updateTimeouts.current.homeScoreName) clearTimeout(updateTimeouts.current.periodValue);
+
+		const _tmpUUID_set = `scoreboard-setTextListWidgetValues-${generate()}`;
+		const _tmpUUID_index = `scoreboard-setTextListWidgetItemIndex-${generate()}`;
+		Emitter.once(_tmpUUID_set, () => {
+			Emitter.once(_tmpUUID_index, ({ response }) => {
+				if (period.value !== response) {
+					setPeriod({ value: response });
+				}
+			});
+
+			Emitter.emit('xpn.SetTextListWidgetItemIndex', {
+				uuid: _tmpUUID_index,
+				name: homeScore.widgetName,
+				index: '0',
+			});
+		});
+
+		Emitter.emit('xpn.SetTextListWidgetValues', {
+			uuid: _tmpUUID_set,
+			name: homeScore.widgetName,
+			values: homeScore.value,
+		});
+
+		return () => {
+			Emitter.off(_tmpUUID_set);
+			Emitter.off(_tmpUUID_index);
+			clearTimeout(updateTimeouts.current.periodValue);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [period.value]);
+
+	useEffect(() => {
+		if (!isMounted.current) return;
+
 		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
 			const returnedValue = parseInt(response, 0);
 			const currentValue = parseInt(homeScore.value, 0);
-			if (returnedValue !== currentValue) setHomeScore({ value: returnedValue });
-			updateScroll(homeScore.title);
+			if (returnedValue !== currentValue) {
+				setHomeScore({ value: returnedValue });
+				updateScroll(homeScore.widgetName);
+			}
 		});
 
 		Emitter.emit('xpn.EditCounterWidget', {
@@ -117,17 +188,25 @@ const Scoreboard = () => {
 			value: homeScore.value,
 		});
 
-		updateScroll(homeScore.title);
+		updateScroll(homeScore.widgetName);
+
+		return () => {
+			Emitter.off(_tmpUUID);
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [homeScore.value]);
 
 	useEffect(() => {
+		if (!isMounted.current) return;
+
 		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
 			const returnedValue = parseInt(response, 0);
 			const currentValue = parseInt(awayScore.value, 0);
-			if (returnedValue !== currentValue) setHomeScore({ value: returnedValue });
-			updateScroll(awayScore.title);
+			if (returnedValue !== currentValue) {
+				setHomeScore({ value: returnedValue });
+				updateScroll(awayScore.widgetName);
+			}
 		});
 
 		Emitter.emit('xpn.EditCounterWidget', {
@@ -136,39 +215,80 @@ const Scoreboard = () => {
 			value: awayScore.value,
 		});
 
-		updateScroll(awayScore.title);
+		updateScroll(awayScore.widgetName);
+
+		return () => {
+			Emitter.off(_tmpUUID);
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [awayScore.value]);
 
 	useEffect(() => {
+		if (!isMounted.current) return;
+
+		if (updateTimeouts.current.periodName) clearTimeout(updateTimeouts.current.periodName);
+
+		const _tmpUUID = `scoreboard-getTextListWidgetValue-${generate()}`;
+		Emitter.once(_tmpUUID, ({ response }) => {
+			setPeriod({ value: response });
+		});
+
+		updateTimeouts.current.periodName = setTimeout(() => {
+			Emitter.emit('xpn.GetTextListWidgetValue', {
+				uuid: _tmpUUID,
+				name: period.widgetName,
+			});
+		}, 250);
+
+		return () => {
+			Emitter.off(_tmpUUID);
+			clearTimeout(updateTimeouts.current.periodName);
+		};
+	}, [period.widgetName, setPeriod]);
+
+	useEffect(() => {
+		if (!isMounted.current) return;
+
+		if (updateTimeouts.current.homeScoreName) clearTimeout(updateTimeouts.current.homeScoreName);
+
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
 			setHomeScore({ value: response });
 		});
 
-		Emitter.emit('xpn.GetCounterWidgetValue', {
-			uuid: _tmpUUID,
-			name: homeScore.widgetName,
-		});
+		updateTimeouts.current.homeScoreName = setTimeout(() => {
+			Emitter.emit('xpn.GetCounterWidgetValue', {
+				uuid: _tmpUUID,
+				name: homeScore.widgetName,
+			});
+		}, 250);
 
 		return () => {
 			Emitter.off(_tmpUUID);
+			clearTimeout(updateTimeouts.current.homeScoreName);
 		};
 	}, [homeScore.widgetName, setHomeScore]);
 
 	useEffect(() => {
+		if (!isMounted.current) return;
+
+		if (updateTimeouts.current.awayScoreName) clearTimeout(updateTimeouts.current.awayScoreName);
+
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
 			setAwayScore({ value: response });
 		});
 
-		Emitter.emit('xpn.GetCounterWidgetValue', {
-			uuid: _tmpUUID,
-			name: awayScore.widgetName,
-		});
+		updateTimeouts.current.awayScoreName = setTimeout(() => {
+			Emitter.emit('xpn.GetCounterWidgetValue', {
+				uuid: _tmpUUID,
+				name: awayScore.widgetName,
+			});
+		}, 250);
 
 		return () => {
 			Emitter.off(_tmpUUID);
+			clearTimeout(updateTimeouts.current.awayScoreName);
 		};
 	}, [awayScore.widgetName, setAwayScore]);
 
@@ -217,18 +337,22 @@ const Scoreboard = () => {
 			}}
 		>
 			<div className='buttons'>
+				<Period
+					widgetName={period.widgetName}
+					value={period.value}
+					onNameChange={(value) => setPeriod({ widgetName: value })}
+					onTextChange={(value) => onPeriodChange(value)}
+				/>
 				<Score
-					title={homeScore.title}
 					widgetName={homeScore.widgetName}
 					value={homeScore.value}
-					onTitleChange={(value) => setHomeScore({ title: value })}
+					onNameChange={(value) => setHomeScore({ widgetName: value })}
 					onScoreChange={(increase, amount) => onScoreChange('HomeScore', increase, amount)}
 				/>
 				<Score
-					title={awayScore.title}
 					widgetName={awayScore.widgetName}
 					value={awayScore.value}
-					onTitleChange={(value) => setAwayScore({ title: value })}
+					onNameChange={(value) => setAwayScore({ widgetName: value })}
 					onScoreChange={(increase, amount) => onScoreChange('AwayScore', increase, amount)}
 				/>
 				{buttons.map((button) => {
@@ -251,4 +375,4 @@ const Scoreboard = () => {
 	);
 };
 
-export default Scoreboard;
+export default React.memo(Scoreboard, isEqual);

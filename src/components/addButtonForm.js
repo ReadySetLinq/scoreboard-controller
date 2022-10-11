@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { isEqual } from 'lodash';
 
 import { defaultButton } from '../jotai/atoms';
 import { addButtonAtom, getNextButtonIndexAtom, getNextButtonTakeId, getLockedModeAtom } from '../jotai/selectors';
@@ -76,4 +77,4 @@ const AddButtonForm = () => {
 	);
 };
 
-export default AddButtonForm;
+export default React.memo(AddButtonForm, isEqual);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { isEqual } from 'lodash';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
 
@@ -15,9 +16,9 @@ const GameClock = () => {
 	const isDisabled = useMemo(() => (isLocked || state.running ? 'disabled' : ''), [isLocked, state]);
 	const interval = useRef(null);
 
-	const onClockTitleChange = useCallback(
+	const onClockNameChange = useCallback(
 		(event) => {
-			setGameClock({ title: event.target.value });
+			setGameClock({ widgetName: event.target.value });
 		},
 		[setGameClock],
 	);
@@ -80,9 +81,9 @@ const GameClock = () => {
 				type='text'
 				className={isDisabled}
 				disabled={isDisabled === 'disabled'}
-				value={gameClock.title}
-				onChange={onClockTitleChange}
-				placeholder='Button Tile'
+				value={gameClock.widgetName}
+				onChange={onClockNameChange}
+				placeholder='Clock Widget Name'
 			/>
 			<div className='stopwatch-time'> {gameClock.value} </div>
 			{state.running ? (
@@ -101,4 +102,4 @@ const GameClock = () => {
 	);
 };
 
-export default GameClock;
+export default React.memo(GameClock, isEqual);

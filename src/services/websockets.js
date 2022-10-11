@@ -69,12 +69,13 @@ export class Websockets {
 
 			// websocket onmessage event listener
 			this.ws.onmessage = (ev) => {
+				console.log('websockets connect this.ws.onmessage', ev.data);
 				Emitter.emit('ws.onMessage', { data: ev.data });
 			};
 
 			// websocket onclose event listener
 			this.ws.onclose = (ev) => {
-				console.info('ws onclose', ev.currentTarget);
+				console.info('websockets connect ws onclose', ev.currentTarget);
 				this.timeout = this.timeout + this.timeout; //increment retry interval
 				if (this.timeout > 30000) this.timeout = 1500; // if retry interval is greater than 30 seconds set it to 30 seconds
 
@@ -95,7 +96,7 @@ export class Websockets {
 
 			// websocket onerror event listener
 			this.ws.onerror = (ev) => {
-				console.error('ws onclose', ev.currentTarget);
+				console.error('websockets connect ws onclose', ev.currentTarget);
 				Emitter.emit('ws.onError', {
 					event: ev,
 				});

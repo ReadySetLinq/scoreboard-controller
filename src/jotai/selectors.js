@@ -1,11 +1,16 @@
 import { atom } from 'jotai';
 import { selectAtom, atomFamily } from 'jotai/utils';
 
-import { widgetsAtom, buttonsAtom, defaultButton, lockedModeAtom, connectionAtom, websocketsAtom } from './atoms';
+import { widgetsAtom, buttonsAtom, defaultButton, lockedModeAtom, connectionAtom } from './atoms';
 
+export const getPeriodSelector = selectAtom(widgetsAtom, (widget) => widget.period);
 export const getHomeScoreSelector = selectAtom(widgetsAtom, (widget) => widget.homeScore);
 export const getAwayScoreSelector = selectAtom(widgetsAtom, (widget) => widget.awayScore);
 export const getGameClockSelector = selectAtom(widgetsAtom, (widget) => widget.gameClock);
+
+export const setPeriodAtom = atom(null, (_get, set, value) =>
+	set(widgetsAtom, (prev) => ({ ...prev, period: { ...prev.period, ...value } })),
+);
 
 export const setHomeScoreAtom = atom(null, (_get, set, value) =>
 	set(widgetsAtom, (prev) => ({ ...prev, homeScore: { ...prev.homeScore, ...value } })),
@@ -59,22 +64,35 @@ export const getLockedModeAtom = atom((get) => get(lockedModeAtom));
 
 export const setLockedModeAtom = atom(null, (_get, set, value) => set(lockedModeAtom, value));
 
+// Connection
 export const getConnectionAtom = atom((get) => get(connectionAtom));
 
-export const getConnectioniIitializedSelector = selectAtom(connectionAtom, (widget) => widget.initialized);
-export const getConnectionConnectedSelector = selectAtom(connectionAtom, (widget) => widget.connected);
-export const getConnectionConnectingSelector = selectAtom(connectionAtom, (widget) => widget.connecting);
-export const getConnectionSettingsSelector = selectAtom(connectionAtom, (widget) => widget.settings);
+export const getIsConnectedSelector = selectAtom(connectionAtom, (widget) => widget.connected);
 
-export const getWebsocketAtom = atom((get) => get(websocketsAtom));
+export const getIsConnectingSelector = selectAtom(connectionAtom, (widget) => widget.connecting);
 
-export const getWebsocketStatusSelector = selectAtom(websocketsAtom, (widget) => widget.status);
-export const getWebsocketDataSelector = selectAtom(websocketsAtom, (widget) => widget.data);
+export const getConnectionMessageSelector = selectAtom(connectionAtom, (widget) => widget.displayMsg);
+
+export const setConnectedAtom = atom(null, (get, set, item = false) => {
+	const data = item ? { connected: true, connecting: false } : { connected: false };
+	return set(connectionAtom, { ...get(connectionAtom), ...data });
+});
+
+export const setIsConnectingAtom = atom(null, (get, set, item = false) => {
+	const data = item ? { connecting: true, connected: false } : { connecting: false };
+	return set(connectionAtom, { ...get(connectionAtom), ...data });
+});
+
+export const setConnectionMessageAtom = atom(null, (get, set, item = '') =>
+	set(connectionAtom, { ...get(connectionAtom), ...{ displayMsg: item } }),
+);
 
 const Selectors = {
+	getPeriodSelector,
 	getHomeScoreSelector,
 	getAwayScoreSelector,
 	getGameClockSelector,
+	setPeriodAtom,
 	setHomeScoreAtom,
 	setAwayScoreAtom,
 	setGameClockAtom,
@@ -88,12 +106,11 @@ const Selectors = {
 	getLockedModeAtom,
 	setLockedModeAtom,
 	getConnectionAtom,
-	getConnectioniIitializedSelector,
-	getConnectionConnectedSelector,
-	getConnectionConnectingSelector,
-	getConnectionSettingsSelector,
-	getWebsocketAtom,
-	getWebsocketStatusSelector,
-	getWebsocketDataSelector,
+	getIsConnectedSelector,
+	getIsConnectingSelector,
+	getConnectionMessageSelector,
+	setConnectedAtom,
+	setIsConnectingAtom,
+	setConnectionMessageAtom,
 };
 export default Selectors;

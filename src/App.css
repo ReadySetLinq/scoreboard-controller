@@ -30,8 +30,7 @@
 
 body {
   font-family: arial;
-  color: #FAFAFA;
-  text-transform: uppercase;
+  color: #FAFAFA;  
 }
 
 .wrapper {
@@ -43,17 +42,18 @@ body {
 
 }
 
-.header {
+.wrapper_header {
   padding: 5px 10px;
   text-align: center;
   display: flex;
   align-items: center;
+  text-transform: uppercase;
   background-color: #222;
   border-radius: 15px 15px 0 0;
   border-bottom: solid 2px #444;
 }
 
-.header h1 {
+.wrapper_header h1 {
   flex-grow: 1;
   font-size: 1.5em;
   letter-spacing: 3px;
@@ -73,6 +73,82 @@ body {
   color: #e57373;
 }
 
+.period {
+  display: flex;
+  font-size: 1.2em;
+  border-bottom: solid 2px #444;
+  letter-spacing: 2px;
+}
+
+.period-name {
+  flex-grow: 1;
+  padding: 10px 10px 10px 10px;
+}
+
+.period-name input[type=text] {
+  flex-grow: 1;
+  border-width: 0 0 1px 0;
+  margin: 0px 10px 0px 15px;
+  padding: 0px 10px 0px 10px;
+  border-radius: 5px;
+  background-color: #333;
+  border-style: none;
+  text-shadow: none;
+  text-align: center;
+  color: #999;
+  letter-spacing: 2px;
+  outline: none;
+  width: 85%
+}
+
+.period-name input[type=text]::-webkit-input-placeholder {
+  color: #666;
+  letter-spacing: 2px;
+}
+
+.period-name input[type=text]:focus {
+  background-color: #444;
+}
+
+.period-score {
+  width: 327px;
+  overflow-x: overlay;
+  padding-top: 5px;
+  background-color: #2b2b2b;
+  color: #FAFAFA;
+  text-align: center;
+  font-family: monospace;
+  align-content: center;
+  align-items: center;
+  border-left: solid 2px #444;
+  border-right: solid 2px #444;
+}
+
+.period-score input[type=text] {
+  flex-grow: 1;
+  border-width: 0 0 1px 0;
+  margin: 10px 10px 0px 15px;
+  padding: 0px 10px 0px 10px;
+  border-radius: 5px;
+  background-color: #2b2b2b;
+  border-style: none;
+  text-shadow: none;
+  text-align: center;
+  color: #999;
+  letter-spacing: 2px;
+  outline: none;
+  width: 85%
+}
+
+.period-score input[type=text]::-webkit-input-placeholder {
+  color: #666;
+  letter-spacing: 2px;
+}
+
+.period-score input[type=text]:focus {
+  background-color: #444;
+}
+
 .score {
   display: flex;
   font-size: 1.2em;
@@ -89,7 +165,6 @@ body {
   background-color: #333;
   border-style: none;
   text-shadow: none;
-  text-transform: uppercase;
   text-align: center;
   color: #999;
   letter-spacing: 2px;
@@ -97,7 +172,7 @@ body {
   width: 85%
 }
 
-.scoreinput[type=text]::-webkit-input-placeholder {
+.score input[type=text]::-webkit-input-placeholder {
   color: #666;
   letter-spacing: 2px;
 }
@@ -112,7 +187,7 @@ body {
 }
 
 .score-score {
-  width: 330px;
+  width: 332px;
 }
 
 .confirm-box {
@@ -272,8 +347,8 @@ body {
   text-align: left;
 }
 
-.header .stats,
-.header .stopwatch {
+.wrapper_header .stats,
+.wrapper_header .stopwatch {
   width: 310px;
 }
 
@@ -414,7 +489,6 @@ body {
   background-color: #2f2f2f;
   border-style: none;
   text-shadow: none;
-  text-transform: uppercase;
   text-align: center;
   color: #999;
   letter-spacing: 2px;

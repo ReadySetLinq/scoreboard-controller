@@ -3,7 +3,7 @@ import React from 'react';
 const Wrapper = ({ elements = { top: null, button: null }, children }) => {
 	return (
 		<div className='wrapper'>
-			<div className='header'>
+			<div className='wrapper_header'>
 				{elements.top}
 				<h1>Scoreboard</h1>
 				{elements.bottom}

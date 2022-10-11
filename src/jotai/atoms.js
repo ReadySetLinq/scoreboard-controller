@@ -1,27 +1,28 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
-import { connection, webSockets } from '../services/utilities';
+export const defaultPeriod = {
+	widgetName: 'period',
+	value: '1st',
+};
 
 export const defaultHomeScore = {
-	title: 'Home Score',
 	widgetName: 'homeScore',
 	value: 0,
 };
 
 export const defaultAwayScore = {
-	title: 'AwayScore',
 	widgetName: 'awayScore',
 	value: 0,
 };
 
 export const defaultGameClock = {
-	title: 'Game Clock',
 	widgetName: 'gameClock',
 	value: 0,
 };
 
 export const initialWidgetsState = {
+	period: defaultPeriod,
 	homeScore: { ...defaultHomeScore },
 	awayScore: { ...defaultAwayScore },
 	gameClock: { ...defaultGameClock },
@@ -44,13 +45,20 @@ export const initialLockedModeState = true;
 
 export const lockedModeAtom = atomWithStorage('rsl.scoreboard.lockedMode', initialLockedModeState);
 
-export const initialConnectionState = connection;
+export const defaultNetworkSettingsData = {
+	ip: 'localhost',
+	port: 0,
+	userName: 'brtf',
+	password: '',
+};
 
-export const connectionAtom = atom(initialConnectionState);
+export const defaultConnection = {
+	connected: false,
+	connecting: false,
+	displayMsg: '',
+};
 
-export const initialWebsocketsState = webSockets;
-
-export const websocketsAtom = atom(initialWebsocketsState);
+export const connectionAtom = atom(defaultConnection);
 
 export const initialUrlParams = new URLSearchParams(window.location.search);
 
@@ -67,10 +75,8 @@ const Atoms = {
 	buttonsAtom,
 	initialLockedModeState,
 	lockedModeAtom,
-	initialConnectionState,
+	defaultConnection,
 	connectionAtom,
-	initialWebsocketsState,
-	websocketsAtom,
 	initialUrlParams,
 	urlParamsAtom,
 };
