@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { useAtomValue } from 'jotai';
 import { isEqual } from 'lodash';
 
@@ -33,4 +33,4 @@ const Period = (props) => {
 	);
 };
 
-export default React.memo(Period, isEqual);
+export default memo(Period, isEqual);

@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { isEqual } from 'lodash';
 
 const ConfirmBox = ({ show, title, message, onConfirm, onCancel }) => {
@@ -20,4 +20,4 @@ const ConfirmBox = ({ show, title, message, onConfirm, onCancel }) => {
 	);
 };
 
-export default React.memo(ConfirmBox, isEqual);
+export default memo(ConfirmBox, isEqual);

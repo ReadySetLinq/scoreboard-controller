@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { memo, useState, useEffect, useMemo, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
 import { isEqual } from 'lodash';
@@ -31,6 +31,13 @@ import AddButtonForm from './addButtonForm';
 import EditButtonForm from './editButtonForm';
 
 const Scoreboard = () => {
+	const isMounted = useRef(false);
+	const updateTimeouts = useRef({
+		periodName: null,
+		periodValue: null,
+		homeScoreName: null,
+		awayScoreName: null,
+	});
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const setIsLocked = useSetAtom(setLockedModeAtom);
 	const period = useAtomValue(getPeriodSelector);
@@ -50,7 +57,6 @@ const Scoreboard = () => {
 		onCancel: null,
 	});
 	const [loadState, setLoadState] = useState({
-		gameClock: true, // CHANGE THIS BACK ONCE gameClock LOGIC IS DONE
 		period: false,
 		homeScore: false,
 		awayScore: false,
@@ -58,13 +64,6 @@ const Scoreboard = () => {
 	});
 	const headerIconClass = useMemo(() => `icon-left icon-clickable ${isLocked ? 'icon-red' : ''}`, [isLocked]);
 	const isLoading = useMemo(() => Object.values(loadState).some((value) => value === false), [loadState]);
-	let updateTimeouts = useRef({
-		periodName: null,
-		periodValue: null,
-		homeScoreName: null,
-		awayScoreName: null,
-	});
-	let isMounted = useRef(false);
 
 	const updateScroll = (title) => {
 		const input = document.getElementById(`score-input-${title}`);
@@ -323,6 +322,10 @@ const Scoreboard = () => {
 		if (buttonsLoaded) setLoadState((prevState) => ({ ...prevState, buttons: true }));
 	}, [buttons]);
 
+	if (isLoading) {
+		return <Load title='Syncing with Xpression' message={'Please wait.'} />;
+	}
+
 	if (confirmState.show) {
 		return (
 			<Wrapper
@@ -350,10 +353,6 @@ const Scoreboard = () => {
 				</div>
 			</Wrapper>
 		);
-	}
-
-	if (isLoading) {
-		return <Load title='Syncing with Xpression' message={'Please wait.'} />;
 	}
 
 	return (
@@ -410,4 +409,4 @@ const Scoreboard = () => {
 	);
 };
 
-export default React.memo(Scoreboard, isEqual);
+export default memo(Scoreboard, isEqual);

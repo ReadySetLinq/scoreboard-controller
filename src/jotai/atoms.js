@@ -18,7 +18,7 @@ export const defaultAwayScore = {
 
 export const defaultGameClock = {
 	widgetName: 'gameClock',
-	value: 0,
+	value: '00:00',
 };
 
 export const initialWidgetsState = {

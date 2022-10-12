@@ -138,6 +138,19 @@ export const events = {
 			}),
 		);
 	},
+	'xpn.GetClockWidgetValue': ({ uuid = null, name = '' }) => {
+		Emitter.emit(
+			'conn.sendMessage',
+			JSON.stringify({
+				service: 'xpression',
+				data: {
+					category: 'widget',
+					action: 'GetClockWidgetValue',
+					properties: { uuid, name },
+				},
+			}),
+		);
+	},
 	'xpn.StartClockWidget': ({ uuid = null, name = '' }) => {
 		Emitter.emit(
 			'conn.sendMessage',
@@ -230,7 +243,13 @@ export const events = {
 				data: {
 					category: 'widget',
 					action: 'SetClockWidgetCallback',
-					properties: { uuid, name, callback },
+					properties: {
+						uuid,
+						name,
+						callback: (Hours, Minutes, Seconds, Milli) => {
+							callback({ hours: Hours, minutes: Minutes, seconds: Seconds, milliseconds: Milli });
+						},
+					},
 				},
 			}),
 		);

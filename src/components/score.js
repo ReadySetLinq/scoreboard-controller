@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { useAtomValue } from 'jotai';
 import { isEqual } from 'lodash';
 
@@ -27,4 +27,4 @@ const Score = (props) => {
 	);
 };
 
-export default React.memo(Score, isEqual);
+export default memo(Score, isEqual);

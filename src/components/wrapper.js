@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Wrapper = ({ elements = { top: null, button: null }, children }) => {
 	return (
 		<div className='wrapper'>

@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { isEqual } from 'lodash';
 
 const Counter = (props) => {
@@ -36,4 +36,4 @@ const Counter = (props) => {
 	);
 };
 
-export default React.memo(Counter, isEqual);
+export default memo(Counter, isEqual);

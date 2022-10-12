@@ -19,6 +19,7 @@ import Emitter from '../services/emitter';
 import { connection } from '../services/utilities';
 
 export const useConnet = (urlSearchParams = new URLSearchParams(window.location.search)) => {
+	const isMounted = useRef(false);
 	const [urlParams, setUrlParams] = useAtom(urlParamsAtom);
 	const getConnectionState = useAtomValue(getConnectionAtom);
 	const setConnectedStore = useSetAtom(setConnectedAtom);
@@ -30,7 +31,6 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 	const setIsStartedStore = useSetAtom(setIsStartedAtom);
 	const setConnectionMessageStore = useSetAtom(setConnectionMessageAtom);
 	const [startup, setStartup] = useState(true);
-	let isMounted = useRef(false);
 
 	useEffect(() => {
 		if (urlParams !== urlSearchParams) setUrlParams(urlParams);

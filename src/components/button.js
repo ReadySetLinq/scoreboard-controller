@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import { memo, useEffect, useCallback, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
 import { isEqual } from 'lodash';
@@ -62,4 +62,4 @@ const Button = (props) => {
 	);
 };
 
-export default React.memo(Button, isEqual);
+export default memo(Button, isEqual);

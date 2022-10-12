@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { memo, useState, useEffect, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isEqual } from 'lodash';
 
@@ -77,4 +77,4 @@ const AddButtonForm = () => {
 	);
 };
 
-export default React.memo(AddButtonForm, isEqual);
+export default memo(AddButtonForm, isEqual);

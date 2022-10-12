@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { isEqual } from 'lodash';
 
@@ -15,4 +15,4 @@ const Connect = () => {
 	return <Load title='Connecting' message={message} />;
 };
 
-export default React.memo(Connect, isEqual);
+export default memo(Connect, isEqual);

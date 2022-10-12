@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { memo, useState, useEffect, useMemo } from 'react';
 import { isEqual } from 'lodash';
 import { TbPlugConnectedX, TbPlugConnected } from 'react-icons/tb';
 
@@ -38,4 +38,4 @@ const Load = ({ title = '', message = '' }) => {
 	);
 };
 
-export default React.memo(Load, isEqual);
+export default memo(Load, isEqual);
