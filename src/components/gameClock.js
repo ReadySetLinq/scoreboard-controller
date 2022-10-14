@@ -4,7 +4,7 @@ import { generate } from 'shortid';
 import { isEqual } from 'lodash';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
-import { timeSpan } from '../services/utilities';
+import { getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
 import Emitter from '../services/emitter';
 
 const GameClock = () => {
@@ -16,11 +16,12 @@ const GameClock = () => {
 	const [state, setState] = useState({
 		running: false,
 		isStarted: false,
-		previouseTime: '0',
+		originalValue: 20.0,
+		value: 20.0,
+		displayTime: '20:00',
+		startTime: new Date(),
 	});
 	const isDisabled = useMemo(() => (isLocked || state.running ? 'disabled' : ''), [isLocked, state]);
-
-	// ADD EXPRESSION LOGIC HERE
 
 	const onClockNameChange = useCallback(
 		(event) => {
@@ -40,15 +41,30 @@ const GameClock = () => {
 		console.log('onClockCallback', hours, minutes, seconds, milliseconds);
 	};
 
+	const onTick = () => {
+		const { minutes, seconds } = getTimeFromDecimal(state.value);
+		let isRunning = state.running;
+		let newValue = state.value - 0.01;
+		if ((newValue - Math.floor(newValue)).toFixed(2) < 0.01) {
+			if (state.value > 0.0) {
+				newValue = Math.floor(parseFloat(`${newValue - 1}.${60}`)).toFixed(2);
+			} else newValue = 0.0;
+		}
+		if (newValue < 0) newValue = 0;
+		setState((oldState) => ({
+			...oldState,
+			value: newValue,
+			running: isRunning,
+			displayTime: `${minutes}:${seconds}`,
+		}));
+	};
+
 	const onStart = () => {
 		clearInterval(interval.current);
-		const ts = timeSpan.FromMilliseconds(Date.now().getMilliseconds());
-		const time = `${ts.minutes}:${ts.seconds}`;
 		setState((oldState) => ({
 			...oldState,
 			running: true,
 			isStarted: true,
-			previouseTime: time,
 		}));
 		interval.current = setInterval(() => onTick(), 100);
 	};
@@ -72,34 +88,15 @@ const GameClock = () => {
 		clearInterval(interval.current);
 	};
 
-	const onReset = useCallback(() => {
-		const ts = timeSpan.FromMilliseconds(Date.now().getMilliseconds());
-		const time = `${ts.minutes}:${ts.seconds}`;
+	const onReset = () => {
+		const { minutes, seconds } = getTimeFromDecimal(state.originalValue);
 		setState((oldState) => ({
 			...oldState,
-			previouseTime: time,
+			value: oldState.originalValue,
+			displayTime: `${minutes}:${seconds}`,
 		}));
-		onClockChange('00:00');
-	}, [onClockChange]);
-
-	const onTick = () => {
-		const ts = timeSpan.FromMilliseconds(Date.now().getMilliseconds());
-		const time = `${ts.minutes}:${ts.seconds}`;
-		setState((oldState) => ({
-			...oldState,
-			previouseTime: time,
-		}));
+		onClockChange(`${minutes}:${seconds}`);
 	};
-
-	useEffect(() => {
-		interval.current = null;
-		isMounted.current = true;
-
-		return () => {
-			isMounted.current = false;
-			clearInterval(interval.current);
-		};
-	}, []);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
@@ -108,7 +105,7 @@ const GameClock = () => {
 		if (state.running) {
 			_tmpUUID = `scoreboard-startClockWidget-${generate()}`;
 			Emitter.once(_tmpUUID, ({ response }) => {
-				console.log(response);
+				console.log(_tmpUUID, response);
 			});
 
 			Emitter.emit('xpn.StartClockWidget', {
@@ -118,7 +115,7 @@ const GameClock = () => {
 		} else {
 			_tmpUUID = `scoreboard-stopClockWidget-${generate()}`;
 			Emitter.once(_tmpUUID, ({ response }) => {
-				console.log(response);
+				console.log(_tmpUUID, response);
 			});
 
 			Emitter.emit('xpn.StartClockWidget', {
@@ -138,10 +135,10 @@ const GameClock = () => {
 
 		const _tmpUUID_value = `scoreboard-getClockWidgetTimerValue-${generate()}`;
 		Emitter.once(_tmpUUID_value, ({ response }) => {
-			const ts = timeSpan.FromMilliseconds(response);
-			const time = `${ts.minutes}:${ts.seconds}`;
-			onClockChange(time);
-			console.log(time, ts);
+			const decimal = getDecimalFromMilliseconds(parseInt(response));
+			const { minutes, seconds } = getTimeFromDecimal(state.originalValue);
+			console.log(_tmpUUID_value, decimal, `${minutes}:${seconds}`);
+			onClockChange(`${minutes}:${seconds}`);
 		});
 
 		Emitter.emit('xpn.GetClockWidgetTimerValue', {
@@ -151,7 +148,7 @@ const GameClock = () => {
 
 		const _tmpUUID_callback = `scoreboard-setClockWidgetCallback-${generate()}`;
 		Emitter.once(_tmpUUID_callback, ({ response }) => {
-			console.log(response);
+			console.log(_tmpUUID_callback, response);
 		});
 
 		Emitter.emit('xpn.SetClockWidgetCallback', {
@@ -167,6 +164,16 @@ const GameClock = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [gameClock.widgetName]);
 
+	useEffect(() => {
+		interval.current = null;
+		isMounted.current = true;
+
+		return () => {
+			isMounted.current = false;
+			clearInterval(interval.current);
+		};
+	}, []);
+
 	return (
 		<div className='stopwatch'>
 			<input
@@ -177,7 +184,7 @@ const GameClock = () => {
 				onChange={onClockNameChange}
 				placeholder='Clock Widget Name'
 			/>
-			<div className='stopwatch-time'> {gameClock.value} </div>
+			<div className='stopwatch-time'> {gameClock.displayTime} </div>
 			{state.running ? (
 				<button className='stopwatch-stop' onClick={onStop}>
 					Stop

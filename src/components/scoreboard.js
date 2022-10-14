@@ -4,7 +4,6 @@ import { generate } from 'shortid';
 import { isEqual } from 'lodash';
 import { RiLockLine, RiLockUnlockLine } from 'react-icons/ri';
 
-import { defaultButton } from '../jotai/atoms';
 import {
 	getPeriodSelector,
 	getHomeScoreSelector,
@@ -13,20 +12,19 @@ import {
 	setHomeScoreAtom,
 	setAwayScoreAtom,
 	getButtonsSelector,
-	removeButtonAtom,
 	getLockedModeAtom,
 	setLockedModeAtom,
 } from '../jotai/selectors';
-
 import { getStyle, isNumber } from '../services/utilities';
 import Emitter from '../services/emitter';
 import Wrapper from './wrapper';
 import GameClock from './gameClock';
-import Button from './button';
 import Period from './period';
 import Score from './score';
 import ConfirmBox from './confirmBox';
 import Load from './load';
+import ButtonList from './buttonList';
+import ErrorList from './errorList';
 import AddButtonForm from './addButtonForm';
 import EditButtonForm from './editButtonForm';
 
@@ -47,7 +45,6 @@ const Scoreboard = () => {
 	const awayScore = useAtomValue(getAwayScoreSelector);
 	const setAwayScore = useSetAtom(setAwayScoreAtom);
 	const buttons = useAtomValue(getButtonsSelector);
-	const removeButton = useSetAtom(removeButtonAtom);
 	const [buttonToEdit, setButtonToEdit] = useState(null);
 	const [confirmState, setConfirmState] = useState({
 		show: false,
@@ -64,6 +61,8 @@ const Scoreboard = () => {
 	});
 	const headerIconClass = useMemo(() => `icon-left icon-clickable ${isLocked ? 'icon-red' : ''}`, [isLocked]);
 	const isLoading = useMemo(() => Object.values(loadState).some((value) => value === false), [loadState]);
+
+	const onLockButton = () => setIsLocked(!isLocked);
 
 	const updateScroll = (title) => {
 		const input = document.getElementById(`score-input-${title}`);
@@ -104,30 +103,9 @@ const Scoreboard = () => {
 		}
 	};
 
-	const onEditButton = (button = defaultButton) => {
-		if (buttonToEdit === null) setButtonToEdit(button);
-		else if (button.index === buttonToEdit.index) setButtonToEdit(null);
-	};
-
 	const onEditButtonSubmit = () => {
 		setButtonToEdit(null);
 	};
-
-	const onRemoveButton = (button = defaultButton) => {
-		setConfirmState({
-			show: true,
-			title: 'Remove Button',
-			message: `Are you sure you want to remove the "[${button.xpnTakeId}] ${button.title}" button?`,
-			onConfirm: () => {
-				removeButton(button);
-				if (buttonToEdit && buttonToEdit.index === button.index) setButtonToEdit(null);
-				setConfirmState({ show: false, title: '', message: '', onConfirm: null, onCancel: null });
-			},
-			onCancel: () => setConfirmState({ show: false, title: '', message: '', onConfirm: null, onCancel: null }),
-		});
-	};
-
-	const onLockButton = () => setIsLocked(!isLocked);
 
 	useEffect(() => {
 		isMounted.current = true;
@@ -389,16 +367,8 @@ const Scoreboard = () => {
 					onNameChange={(value) => setAwayScore({ widgetName: value })}
 					onScoreChange={(increase, amount) => onScoreChange('AwayScore', increase, amount)}
 				/>
-				{buttons.map((button) => {
-					return (
-						<Button
-							index={button.index}
-							key={`buttons-${button.index}`}
-							onRemove={() => onRemoveButton(button)}
-							onEdit={() => onEditButton(button)}
-						/>
-					);
-				})}
+				<ButtonList setLoadState={setLoadState} confirmState={confirmState} setConfirmState={setConfirmState} />
+				<ErrorList />
 			</div>
 			{buttonToEdit === null ? (
 				<AddButtonForm />

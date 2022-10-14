@@ -204,7 +204,10 @@ export class Connection {
 							}
 							case 'error': {
 								Emitter.emit('xpression.error', {
-									data: _msg.data,
+									data: {
+										..._msg.data,
+										message: _msg.data.message ? _msg.data.message.trim() : 'An unknown error occurred',
+									},
 								});
 								break;
 							}
@@ -357,6 +360,13 @@ export class Connection {
 									Emitter.emit('xpression.controllerStarted', {
 										uuid: _msg.data.value.uuid,
 										response: _msg.data.value.response,
+									});
+								} else if (isEqual(_msg.data.action, 'error')) {
+									Emitter.emit('xpression.error', {
+										uuid: _msg.data.value.uuid,
+										data: {
+											message: _msg.data.value.response,
+										},
 									});
 								} else {
 									// Send custom UUID response

@@ -87,11 +87,6 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 			setConnectionMessageStore('Connected! Starting controller...');
 		});
 
-		Emitter.on('xpression.error', (value) => {
-			if (!isMounted.current) return;
-			console.error(value.data.message);
-		});
-
 		Emitter.on('network.connecting', (displayMsg = '') => {
 			if (!isMounted.current) return;
 			setConnectedStore(false);
@@ -122,7 +117,6 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 			isMounted.current = false;
 			Emitter.off('xpression-started');
 			Emitter.off('xpression.loggedIn');
-			Emitter.off('xpression.error');
 			Emitter.off('xpression.controllerStarted');
 			Emitter.off('network.disconnected');
 			Emitter.off('conn.status');
