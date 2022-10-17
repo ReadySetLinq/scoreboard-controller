@@ -33,7 +33,6 @@ import EditButtonForm from './editButtonForm';
 const Scoreboard = () => {
 	const isMounted = useRef(false);
 	const timerPeriodName = useRef(null);
-	const timerPeriodValue = useRef(null);
 	const timerHomeScoreName = useRef(null);
 	const timerAwayScoreName = useRef(null);
 	const isLocked = useAtomValue(getLockedModeAtom);
@@ -133,7 +132,6 @@ const Scoreboard = () => {
 		return () => {
 			isMounted.current = false;
 			clearTimeout(timerPeriodName.current);
-			clearTimeout(timerPeriodValue.current);
 			clearTimeout(timerHomeScoreName.current);
 			clearTimeout(timerAwayScoreName.current);
 		};
@@ -142,8 +140,6 @@ const Scoreboard = () => {
 
 	useEffect(() => {
 		if (!isMounted.current) return;
-
-		if (timerPeriodValue.current) clearTimeout(timerPeriodValue.current);
 
 		const _tmpUUID_set = `scoreboard-setTextListWidgetValues-${generate()}`;
 		const _tmpUUID_index = `scoreboard-setTextListWidgetItemIndex-${generate()}`;
@@ -170,7 +166,6 @@ const Scoreboard = () => {
 		return () => {
 			Emitter.off(_tmpUUID_set);
 			Emitter.off(_tmpUUID_index);
-			clearTimeout(timerPeriodValue.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [period.value]);
