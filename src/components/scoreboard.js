@@ -30,12 +30,9 @@ import EditButtonForm from './editButtonForm';
 
 const Scoreboard = () => {
 	const isMounted = useRef(false);
-	const updateTimeouts = useRef({
-		periodName: null,
-		periodValue: null,
-		homeScoreName: null,
-		awayScoreName: null,
-	});
+	const timerPeriodName = useRef(null);
+	const timerHomeScoreName = useRef(null);
+	const timerAwayScoreName = useRef(null);
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const setIsLocked = useSetAtom(setLockedModeAtom);
 	const period = useAtomValue(getPeriodSelector);
@@ -112,18 +109,15 @@ const Scoreboard = () => {
 
 		return () => {
 			isMounted.current = false;
-			clearTimeout(updateTimeouts.current.periodName);
-			clearTimeout(updateTimeouts.current.periodValue);
-			clearTimeout(updateTimeouts.current.homeScoreName);
-			clearTimeout(updateTimeouts.current.awayScoreName);
+			clearTimeout(timerPeriodName.current);
+			clearTimeout(timerHomeScoreName.current);
+			clearTimeout(timerAwayScoreName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
-
-		if (updateTimeouts.current.periodValue) clearTimeout(updateTimeouts.current.periodValue);
 
 		const _tmpUUID_set = `scoreboard-setTextListWidgetValues-${generate()}`;
 		const _tmpUUID_index = `scoreboard-setTextListWidgetItemIndex-${generate()}`;
@@ -150,7 +144,6 @@ const Scoreboard = () => {
 		return () => {
 			Emitter.off(_tmpUUID_set);
 			Emitter.off(_tmpUUID_index);
-			clearTimeout(updateTimeouts.current.periodValue);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [period.value]);
@@ -216,7 +209,7 @@ const Scoreboard = () => {
 	useEffect(() => {
 		if (!isMounted.current) return;
 
-		if (updateTimeouts.current.periodName) clearTimeout(updateTimeouts.current.periodName);
+		if (timerPeriodName.current) clearTimeout(timerPeriodName.current);
 
 		const _tmpUUID = `scoreboard-getTextListWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
@@ -225,7 +218,7 @@ const Scoreboard = () => {
 			setLoadState((prevState) => ({ ...prevState, period: true }));
 		});
 
-		updateTimeouts.current.periodName = setTimeout(() => {
+		timerPeriodName.current = setTimeout(() => {
 			Emitter.emit('xpn.GetTextListWidgetValue', {
 				uuid: _tmpUUID,
 				name: period.widgetName,
@@ -234,14 +227,14 @@ const Scoreboard = () => {
 
 		return () => {
 			Emitter.off(_tmpUUID);
-			clearTimeout(updateTimeouts.current.periodName);
+			clearTimeout(timerPeriodName.current);
 		};
 	}, [period.widgetName, setPeriod]);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
 
-		if (updateTimeouts.current.homeScoreName) clearTimeout(updateTimeouts.current.homeScoreName);
+		if (timerHomeScoreName.current) clearTimeout(timerHomeScoreName.current);
 
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
@@ -252,7 +245,7 @@ const Scoreboard = () => {
 			setLoadState((prevState) => ({ ...prevState, homeScore: true }));
 		});
 
-		updateTimeouts.current.homeScoreName = setTimeout(() => {
+		timerHomeScoreName.current = setTimeout(() => {
 			Emitter.emit('xpn.GetCounterWidgetValue', {
 				uuid: _tmpUUID,
 				name: homeScore.widgetName,
@@ -261,14 +254,14 @@ const Scoreboard = () => {
 
 		return () => {
 			Emitter.off(_tmpUUID);
-			clearTimeout(updateTimeouts.current.homeScoreName);
+			clearTimeout(timerHomeScoreName.current);
 		};
 	}, [homeScore.widgetName, setHomeScore]);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
 
-		if (updateTimeouts.current.awayScoreName) clearTimeout(updateTimeouts.current.awayScoreName);
+		if (timerAwayScoreName.current) clearTimeout(timerAwayScoreName.current);
 
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response }) => {
@@ -280,7 +273,7 @@ const Scoreboard = () => {
 			setLoadState((prevState) => ({ ...prevState, awayScore: true }));
 		});
 
-		updateTimeouts.current.awayScoreName = setTimeout(() => {
+		timerAwayScoreName.current = setTimeout(() => {
 			Emitter.emit('xpn.GetCounterWidgetValue', {
 				uuid: _tmpUUID,
 				name: awayScore.widgetName,
@@ -289,7 +282,7 @@ const Scoreboard = () => {
 
 		return () => {
 			Emitter.off(_tmpUUID);
-			clearTimeout(updateTimeouts.current.awayScoreName);
+			clearTimeout(timerAwayScoreName.current);
 		};
 	}, [awayScore.widgetName, setAwayScore]);
 

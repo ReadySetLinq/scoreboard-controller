@@ -48,12 +48,12 @@ const Button = (props) => {
 	return (
 		<div className='button'>
 			<div className='button-name'>
-				<div className={`button-remove ${isHiddenClass}`} title='Delete' onClick={props.onRemove}>
+				<button className={`button-remove ${isHiddenClass}`} title='Delete' onClick={props.onRemove}>
 					<RiDeleteBinLine title='Delete' />
-				</div>
-				<div className={`button-edit ${isHiddenClass}`} onClick={props.onEdit}>
+				</button>
+				<button className={`button-edit ${isHiddenClass}`} onClick={props.onEdit}>
 					<RiEditBoxLine title='Edit' />
-				</div>
+				</button>
 				<button className={`button-action ${isOnlineClass}`} onClick={onButtonClick}>
 					{`[${zeroPad(button.xpnTakeId)}] ${button.title}`}
 				</button>
