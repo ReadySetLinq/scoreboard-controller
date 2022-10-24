@@ -4,6 +4,7 @@ import { generate } from 'shortid';
 import { isEqual } from 'lodash';
 
 import { getPeriodSelector, setPeriodAtom, getLockedModeAtom } from '../jotai/selectors';
+import useDebounce from '../services/useDebounce';
 import Emitter from '../services/emitter';
 
 const Period = ({ setLoadState }) => {
@@ -12,6 +13,8 @@ const Period = ({ setLoadState }) => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const period = useAtomValue(getPeriodSelector);
 	const setPeriod = useSetAtom(setPeriodAtom);
+	const periodName = useDebounce(period.widgetName, 300);
+	const periodValue = useDebounce(period.value, 300);
 
 	const onPeriodChange = (value) => {
 		if (value === 'reset') {
@@ -59,7 +62,7 @@ const Period = ({ setLoadState }) => {
 			Emitter.off(_tmpUUID_index);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [period.value]);
+	}, [periodValue]);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
@@ -86,7 +89,7 @@ const Period = ({ setLoadState }) => {
 			clearTimeout(timerPeriodName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [period.widgetName, setPeriod]);
+	}, [periodName]);
 
 	return (
 		<div className='period'>

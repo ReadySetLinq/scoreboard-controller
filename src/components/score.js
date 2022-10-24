@@ -11,6 +11,7 @@ import {
 	getLockedModeAtom,
 } from '../jotai/selectors';
 import { getStyle, isNumber } from '../services/utilities';
+import useDebounce from '../services/useDebounce';
 import Emitter from '../services/emitter';
 import Counter from './counter';
 
@@ -41,6 +42,8 @@ const Home = ({ setLoadState }) => {
 	const timerHomeScoreName = useRef(null);
 	const homeScore = useAtomValue(getHomeScoreSelector);
 	const setHomeScore = useSetAtom(setHomeScoreAtom);
+	const scoreName = useDebounce(homeScore.widgetName, 300);
+	const scoreValue = useDebounce(homeScore.value, 300);
 
 	const updateScroll = (title) => {
 		const input = document.getElementById(`score-input-${title}`);
@@ -97,11 +100,10 @@ const Home = ({ setLoadState }) => {
 			Emitter.off(_tmpUUID);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [homeScore.value]);
+	}, [scoreValue]);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
-		setLoadState((prevState) => ({ ...prevState, homeScore: false }));
 
 		if (timerHomeScoreName.current) clearTimeout(timerHomeScoreName.current);
 
@@ -126,7 +128,7 @@ const Home = ({ setLoadState }) => {
 			clearTimeout(timerHomeScoreName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [homeScore.widgetName, setHomeScore]);
+	}, [scoreName]);
 
 	return (
 		<Score
@@ -144,6 +146,8 @@ const Away = ({ setLoadState }) => {
 	const timerAwayScoreName = useRef(null);
 	const awayScore = useAtomValue(getAwayScoreSelector);
 	const setAwayScore = useSetAtom(setAwayScoreAtom);
+	const scoreName = useDebounce(awayScore.widgetName, 300);
+	const scoreValue = useDebounce(awayScore.value, 300);
 
 	const updateScroll = (title) => {
 		const input = document.getElementById(`score-input-${title}`);
@@ -200,11 +204,10 @@ const Away = ({ setLoadState }) => {
 			Emitter.off(_tmpUUID);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [awayScore.value]);
+	}, [scoreValue]);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
-		setLoadState((prevState) => ({ ...prevState, awayScore: false }));
 
 		if (timerAwayScoreName.current) clearTimeout(timerAwayScoreName.current);
 
@@ -229,7 +232,7 @@ const Away = ({ setLoadState }) => {
 			clearTimeout(timerAwayScoreName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [awayScore.widgetName, setAwayScore]);
+	}, [scoreName]);
 
 	return (
 		<Score

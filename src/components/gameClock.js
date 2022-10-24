@@ -5,6 +5,7 @@ import { isEqual } from 'lodash';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
 import { getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
+import useDebounce from '../services/useDebounce';
 import Emitter from '../services/emitter';
 
 const GameClock = () => {
@@ -21,6 +22,7 @@ const GameClock = () => {
 		displayTime: '20:00',
 		startTime: new Date(),
 	});
+	const clockName = useDebounce(gameClock.widgetName, 300);
 	const isDisabled = useMemo(() => (isLocked || state.running ? 'disabled' : ''), [isLocked, state]);
 
 	const onClockNameChange = useCallback(
@@ -162,7 +164,7 @@ const GameClock = () => {
 			Emitter.off(_tmpUUID_callback);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [gameClock.widgetName]);
+	}, [clockName]);
 
 	useEffect(() => {
 		interval.current = null;
