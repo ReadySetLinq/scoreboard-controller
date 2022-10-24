@@ -5,7 +5,7 @@ import { isEqual } from 'lodash';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
 import { getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
-import useDebounce from '../services/useDebounce';
+import { useDebounce } from '../services/useDebounce';
 import Emitter from '../services/emitter';
 
 const GameClock = () => {

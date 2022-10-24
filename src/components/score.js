@@ -11,7 +11,7 @@ import {
 	getLockedModeAtom,
 } from '../jotai/selectors';
 import { getStyle, isNumber } from '../services/utilities';
-import useDebounce from '../services/useDebounce';
+import { useDebounce } from '../services/useDebounce';
 import Emitter from '../services/emitter';
 import Counter from './counter';
 

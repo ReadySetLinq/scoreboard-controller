@@ -4,7 +4,7 @@ import { generate } from 'shortid';
 import { isEqual } from 'lodash';
 
 import { getPeriodSelector, setPeriodAtom, getLockedModeAtom } from '../jotai/selectors';
-import useDebounce from '../services/useDebounce';
+import { useDebounce } from '../services/useDebounce';
 import Emitter from '../services/emitter';
 
 const Period = ({ setLoadState }) => {
