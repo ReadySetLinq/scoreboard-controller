@@ -8,7 +8,7 @@ import { getButtonsSelector, removeButtonAtom } from '../jotai/selectors';
 
 import Button from './button';
 
-const ButtonList = ({ setLoadState, confirmState, setConfirmState }) => {
+const ButtonList = ({ setLoadState, setConfirmState }) => {
 	const isMounted = useRef(false);
 	const buttons = useAtomValue(getButtonsSelector);
 	const removeButton = useSetAtom(removeButtonAtom);

@@ -6,10 +6,10 @@ import { defaultButton } from '../jotai/atoms';
 import { getButtonSelector, setButtonAtom, getLockedModeAtom } from '../jotai/selectors';
 import { zeroPad } from '../services/utilities';
 
-const EditButtonForm = (props) => {
+const EditButtonForm = ({ index, onSubmit }) => {
 	const isLocked = useAtomValue(getLockedModeAtom);
-	const button = useAtomValue(getButtonSelector(props.index));
-	const setButton = useSetAtom(setButtonAtom(props.index));
+	const button = useAtomValue(getButtonSelector(index));
+	const setButton = useSetAtom(setButtonAtom(index));
 	const [state, setState] = useState({ ...defaultButton });
 	const isDisabled = useMemo(
 		() => (isLocked || state.title.length === 0 || state.xpnTakeId.toString().length <= 0 ? 'disabled' : ''),
@@ -31,19 +31,19 @@ const EditButtonForm = (props) => {
 		setState((oldState) => ({ ...oldState, xpnTakeId: takeId.length < 3 ? zeroPad(takeId) : takeId }));
 	};
 
-	const onSubmit = (e) => {
+	const onFormSubmit = (e) => {
 		if (e) e.preventDefault();
 		setButton({ ...button, title: state.title, xpnTakeId: zeroPad(state.xpnTakeId) });
-		props.onSubmit();
+		onSubmit();
 	};
 
 	useEffect(() => {
 		setState({ ...defaultButton, ...button, xpnTakeId: zeroPad(button.xpnTakeId) });
-	}, [button, props.index]);
+	}, [button, index]);
 
 	return (
 		<div className='edit-button-form'>
-			<form onSubmit={onSubmit}>
+			<form onSubmit={onFormSubmit}>
 				<input
 					className={isLocked ? 'disabled' : ''}
 					disabled={isLocked}

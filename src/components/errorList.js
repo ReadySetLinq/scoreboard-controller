@@ -11,20 +11,21 @@ const defaultError = {
 	message: '',
 };
 
-export const Error = (props) => {
-	const error = props.error ? props.error : defaultError;
+const ErrorDisplay = ({ error, onRemove }) => {
+	const curError = error ? error : defaultError;
 
 	return (
-		<div className='button' key={`error-div -${error.index}`}>
+		<div className='button' key={`error-div -${curError.index}`}>
 			<div className='button-name'>
-				<div className={`button-remove`} title='Remove' onClick={props.onRemove}>
+				<div className={`button-remove`} title='Remove' onClick={onRemove}>
 					<RiCloseCircleLine title='Remove' />
 				</div>
-				{error.message}
+				{curError.message}
 			</div>
 		</div>
 	);
 };
+export const Error = memo(ErrorDisplay, isEqual);
 
 const ErrorList = () => {
 	const [errorState, setErrorState] = useState([]);
@@ -59,8 +60,8 @@ const ErrorList = () => {
 		<div className='errors__row' ref={errorsListRef}>
 			{errorState.map((error) => (
 				<Error
-					index={error.index}
 					key={`error-${error.index}`}
+					index={error.index}
 					onRemove={() => setErrorState((prev) => prev.filter((item) => item.index !== error.index))}
 				/>
 			))}

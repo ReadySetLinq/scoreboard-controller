@@ -8,10 +8,10 @@ import { getButtonSelector, setButtonAtom, getLockedModeAtom } from '../jotai/se
 import { zeroPad } from '../services/utilities';
 import Emitter from '../services/emitter';
 
-const Button = (props) => {
+const Button = ({ index, onRemove, onEdit }) => {
 	const isLocked = useAtomValue(getLockedModeAtom);
-	const button = useAtomValue(getButtonSelector(props.index));
-	const setButton = useSetAtom(setButtonAtom(props.index));
+	const button = useAtomValue(getButtonSelector(index));
+	const setButton = useSetAtom(setButtonAtom(index));
 	const isOnlineClass = useMemo(() => (button.online ? 'isOnline' : ''), [button.online]);
 	const isHiddenClass = useMemo(() => (isLocked ? 'hidden' : ''), [isLocked]);
 
@@ -48,10 +48,10 @@ const Button = (props) => {
 	return (
 		<div className='button'>
 			<div className='button-name'>
-				<button className={`button-remove ${isHiddenClass}`} title='Delete' onClick={props.onRemove}>
+				<button className={`button-remove ${isHiddenClass}`} title='Delete' onClick={onRemove}>
 					<RiDeleteBinLine title='Delete' />
 				</button>
-				<button className={`button-edit ${isHiddenClass}`} onClick={props.onEdit}>
+				<button className={`button-edit ${isHiddenClass}`} onClick={onEdit}>
 					<RiEditBoxLine title='Edit' />
 				</button>
 				<button className={`button-action ${isOnlineClass}`} onClick={onButtonClick}>
