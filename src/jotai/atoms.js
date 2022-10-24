@@ -43,7 +43,7 @@ export const buttonsAtom = atomWithStorage('rsl.scoreboard.buttons', [...initial
 
 export const initialLockedModeState = true;
 
-export const lockedModeAtom = atomWithStorage('rsl.scoreboard.lockedMode', initialLockedModeState);
+export const lockedModeAtom = atomWithStorage('rsl.scoreboard.lockedMode', !!initialLockedModeState);
 
 export const defaultNetworkSettingsData = {
 	ip: 'localhost',
