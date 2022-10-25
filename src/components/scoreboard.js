@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useMemo, useRef } from 'react';
+import { memo, useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isEqual } from 'lodash';
 import { RiLockLine, RiLockUnlockLine } from 'react-icons/ri';
@@ -12,8 +12,9 @@ import ConfirmBox from './confirmBox';
 import Load from './load';
 import ButtonList from './buttonList';
 import ErrorList from './errorList';
-import AddButtonForm from './addButtonForm';
-import EditButtonForm from './editButtonForm';
+
+const AddButtonForm = lazy(() => import('./addButtonForm'));
+const EditButtonForm = lazy(() => import('./editButtonForm'));
 
 const Scoreboard = () => {
 	const isMounted = useRef(false);
@@ -60,7 +61,7 @@ const Scoreboard = () => {
 	}, [buttons]);
 
 	if (isLoading) {
-		return <Load title='Syncing with Xpression' message={'Please wait.'} />;
+		return <Load title='Syncing with Xpression' message={'Please wait.'} showXpression={true} />;
 	}
 
 	if (confirmState.show) {
@@ -114,11 +115,17 @@ const Scoreboard = () => {
 				<ButtonList setLoadState={setLoadState} setConfirmState={setConfirmState} />
 				<ErrorList />
 			</div>
-			{buttonToEdit === null ? (
-				<AddButtonForm />
-			) : (
-				<EditButtonForm index={buttonToEdit.index} onSubmit={onEditButtonSubmit} />
-			)}
+			<Suspense
+				fallback={
+					buttonToEdit === null ? <div className='add-button-form'></div> : <div className='edit-button-form'></div>
+				}
+			>
+				{buttonToEdit === null ? (
+					<AddButtonForm />
+				) : (
+					<EditButtonForm index={buttonToEdit.index} onSubmit={onEditButtonSubmit} />
+				)}
+			</Suspense>
 		</Wrapper>
 	);
 };
