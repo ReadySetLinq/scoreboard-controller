@@ -1,7 +1,6 @@
-import { memo, useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
-import { isEqual } from 'lodash';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
 import { getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
@@ -207,4 +206,4 @@ const GameClock = () => {
 	);
 };
 
-export default memo(GameClock, isEqual);
+export default GameClock;

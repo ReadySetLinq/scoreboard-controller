@@ -69,4 +69,4 @@ const ErrorList = () => {
 	);
 };
 
-export default memo(ErrorList, isEqual);
+export default ErrorList;

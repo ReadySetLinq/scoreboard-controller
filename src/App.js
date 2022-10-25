@@ -1,5 +1,4 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { isEqual } from 'lodash';
 
 import { useConnet } from './hooks/useConnect';
 import Load from './components/load';
@@ -34,4 +33,4 @@ const App = () => {
 	*/
 };
 
-export default React.memo(App, isEqual);
+export default App;

@@ -1,6 +1,5 @@
-import { memo, useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { isEqual } from 'lodash';
 import { RiLockLine, RiLockUnlockLine } from 'react-icons/ri';
 
 import { getButtonsSelector, getLockedModeAtom, setLockedModeAtom } from '../jotai/selectors';
@@ -130,4 +129,4 @@ const Scoreboard = () => {
 	);
 };
 
-export default memo(Scoreboard, isEqual);
+export default Scoreboard;

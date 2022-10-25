@@ -1,6 +1,5 @@
-import { memo, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { isEqual } from 'lodash';
 
 import { getConnectionMessageSelector } from '../jotai/selectors';
 import Load from './load';
@@ -15,4 +14,4 @@ const Connect = () => {
 	return <Load title='Connecting' message={message} showXpression={true} />;
 };
 
-export default memo(Connect, isEqual);
+export default Connect;
