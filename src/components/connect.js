@@ -12,7 +12,7 @@ const Connect = () => {
 		[connectionMessageState],
 	);
 
-	return <Load title='Connecting' message={message} />;
+	return <Load title='Connecting' message={message} showXpression={true} />;
 };
 
 export default memo(Connect, isEqual);
