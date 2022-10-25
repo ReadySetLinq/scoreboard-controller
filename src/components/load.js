@@ -4,7 +4,7 @@ import { TbPlugConnectedX, TbPlugConnected } from 'react-icons/tb';
 
 import Wrapper from './wrapper';
 
-const Load = ({ title = '', message = '' }) => {
+const Load = ({ title = '', message = '', showXpression = true }) => {
 	const [state, setState] = useState({ dots: 0, dotText: '' });
 	const headerIconClass = useMemo(() => `icon-left ${state.dots % 3 ? 'icon-red' : ''}`, [state.dots]);
 
@@ -29,8 +29,11 @@ const Load = ({ title = '', message = '' }) => {
 				<div className={`confirm-box show`}>
 					<div className='confirm-box__content'>
 						<div className='confirm-box__title error'>{`${title}${state.dotText}`}</div>
-						<div className='confirm-box__message'>{`Please make sure the Xpression server is running and connected to the same network.\n\nChange the IP or Port by providing a URL parameter for ip or port`}</div>
-						<div className='confirm-box__actions error'>{message}</div>
+						<div className='confirm-box__message'>
+							{showXpression &&
+								`Please make sure the Xpression server is running and connected to the same network.\n\nChange the IP or Port by providing a URL parameter for ip or port`}
+						</div>
+						<div className='confirm-box__actions error'>{message !== '' && message}</div>
 					</div>
 				</div>
 			</div>
