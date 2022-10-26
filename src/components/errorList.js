@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 import { RiCloseCircleLine } from 'react-icons/ri';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 
-import Emitter from '../services/emitter';
+import { useEmitter } from '../hooks/useEmitter';
 
 const defaultError = {
 	index: generate(),
@@ -35,26 +35,25 @@ const ErrorList = () => {
 	useEffect(() => {
 		isMounted.current = true;
 
-		Emitter.on('xpression.error', (error) => {
-			if (!isMounted.current) return;
-			console.log('xpression.error', error);
-
-			setErrorState((prevErrors) => {
-				return [
-					...prevErrors,
-					{
-						index: generate(),
-						message: error.data.message,
-					},
-				];
-			});
-		});
-
 		return () => {
 			isMounted.current = false;
-			Emitter.off('xpression.error');
 		};
 	}, []);
+
+	useEmitter('xpression.error', (error) => {
+		if (!isMounted.current) return;
+		console.log('xpression.error', error);
+
+		setErrorState((prevErrors) => {
+			return [
+				...prevErrors,
+				{
+					index: generate(),
+					message: error.data.message,
+				},
+			];
+		});
+	});
 
 	return (
 		<div className='errors__row' ref={errorsListRef}>
