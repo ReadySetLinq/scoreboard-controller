@@ -15,7 +15,7 @@ import { useDebounce } from '../services/useDebounce';
 import Emitter from '../services/emitter';
 import Counter from './counter';
 
-const Score = ({ widgetName, value, onNameChange, onScoreChange }) => {
+const Score = ({ widgetName, placeholder, value, onNameChange, onScoreChange }) => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 
 	return (
@@ -26,7 +26,7 @@ const Score = ({ widgetName, value, onNameChange, onScoreChange }) => {
 					disabled={isLocked}
 					type='text'
 					value={widgetName}
-					placeholder='Widget Name'
+					placeholder={placeholder}
 					onChange={(event) => onNameChange(event.target.value)}
 				/>
 			</div>
@@ -133,6 +133,7 @@ const Home = ({ setLoadState }) => {
 	return (
 		<Score
 			widgetName={homeScore.widgetName}
+			placeholder='Home Score Widget Name'
 			value={homeScore.value}
 			onNameChange={(value) => setHomeScore({ widgetName: value })}
 			onScoreChange={(increase, amount) => onScoreChange(increase, amount)}
@@ -237,6 +238,7 @@ const Away = ({ setLoadState }) => {
 	return (
 		<Score
 			widgetName={awayScore.widgetName}
+			placeholder='Away Score Widget Name'
 			value={awayScore.value}
 			onNameChange={(value) => setAwayScore({ widgetName: value })}
 			onScoreChange={(increase, amount) => onScoreChange(increase, amount)}

@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { selectAtom, atomFamily } from 'jotai/utils';
 
-import { widgetsAtom, buttonsAtom, defaultButton, lockedModeAtom, connectionAtom } from './atoms';
+import { widgetsAtom, buttonsAtom, defaultButton, lockedModeAtom, nodesAtom, connectionAtom } from './atoms';
 
 export const getPeriodSelector = selectAtom(widgetsAtom, (widget) => widget.period);
 export const getHomeScoreSelector = selectAtom(widgetsAtom, (widget) => widget.homeScore);
@@ -64,6 +64,11 @@ export const getLockedModeAtom = atom((get) => get(lockedModeAtom));
 
 export const setLockedModeAtom = atom(null, (_get, set, value) => set(lockedModeAtom, value));
 
+// Nodes
+export const getNodesAtom = atom((get) => get(nodesAtom));
+
+export const setNodesAtom = atom(null, (_get, set, value) => set(nodesAtom, value));
+
 // Connection
 export const getConnectionAtom = atom((get) => get(connectionAtom));
 
@@ -111,6 +116,8 @@ const Selectors = {
 	getNextButtonTakeId,
 	getLockedModeAtom,
 	setLockedModeAtom,
+	getNodesAtom,
+	setNodesAtom,
 	getConnectionAtom,
 	getIsConnectedSelector,
 	getIsConnectingSelector,

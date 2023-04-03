@@ -35,7 +35,7 @@ body {
 
 .wrapper {
   background: #333;
-  width: 700px;
+  width: 50em;
   margin: 70px auto;
   box-shadow: 0 4px 0px #333;
   border-radius: 15px;
@@ -58,6 +58,7 @@ body {
   font-size: 1.5em;
   letter-spacing: 3px;
   font-weight: normal;
+  cursor: default;
 }
 
 .icon-clickable {
@@ -67,6 +68,15 @@ body {
 .icon-left {
   float: left;
   margin-right: 10px;
+}
+
+.icon-right {
+  float: right;
+  margin-left: 10px;
+}
+
+.arrow-down {
+  margin-left: 23.5em;
 }
 
 .icon-red {
@@ -111,7 +121,7 @@ body {
 }
 
 .period-score {
-  width: 327px;
+  width: 24.5em;
   overflow-x: overlay;
   padding-top: 5px;
   background-color: #2b2b2b;
@@ -121,7 +131,6 @@ body {
   align-content: center;
   align-items: center;
   border-left: solid 2px #444;
-  border-right: solid 2px #444;
 }
 
 .period-score input[type=text] {
@@ -134,7 +143,7 @@ body {
   border-style: none;
   text-shadow: none;
   text-align: center;
-  color: #999;
+  color: #FAFAFA;
   letter-spacing: 2px;
   outline: none;
   width: 85%
@@ -187,7 +196,7 @@ body {
 }
 
 .score-score {
-  width: 332px;
+  width: 20em;
 }
 
 .confirm-box {
@@ -269,6 +278,11 @@ body {
   letter-spacing: 2px;
 }
 
+.button.highlight {
+  border: solid 1px #2f73ea;
+}
+
+
 .button-name {
   flex-grow: 1;
   padding: 5px 10px 5px 10px;
@@ -328,6 +342,7 @@ body {
   font-size: 2em;
   align-content: center;
   align-items: center;
+  cursor: default;
 }
 
 .stats {
@@ -349,7 +364,18 @@ body {
 
 .wrapper_header .stats,
 .wrapper_header .stopwatch {
-  width: 310px;
+  width: 22.7em;
+}
+
+.buttons__row {
+  position: initial;
+}
+
+.buttonList__scene {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 9.5em;
 }
 
 .add-button-form form {
@@ -421,6 +447,7 @@ body {
   margin-right: 10px;
   color: #e57373;
   cursor: pointer;
+  background: transparent;
 }
 
 .button-edit {
@@ -428,6 +455,7 @@ body {
   margin-right: 10px;
   color: #4b71b5;
   cursor: pointer;
+  background: transparent;
 }
 
 .button-action {
@@ -557,13 +585,16 @@ body {
   cursor: pointer;
 }
 
-
 .stopwatch h2 {
   font-size: .6em;
   margin: 0;
   font-weight: normal;
   letter-spacing: 2px;
   color: #666;
+}
+
+.moveable__controls {
+  position: absolute;
 }
 
 .error {

@@ -1,23 +1,20 @@
-import { memo, useState, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isEqual } from 'lodash';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 import { defaultButton } from '../jotai/atoms';
 import { getButtonsSelector, removeButtonAtom } from '../jotai/selectors';
 
 import Button from './button';
 
-const ButtonList = ({ setLoadState, setConfirmState }) => {
+const ButtonList = ({ setLoadState, setConfirmState, buttonToEdit, setButtonToEdit }) => {
 	const isMounted = useRef(false);
 	const buttons = useAtomValue(getButtonsSelector);
 	const removeButton = useSetAtom(removeButtonAtom);
-	const [buttonToEdit, setButtonToEdit] = useState(null);
-	const [buttonListRef] = useAutoAnimate();
 
 	const onEditButton = (button = defaultButton) => {
-		if (buttonToEdit === null) setButtonToEdit(button);
-		else if (button.index === buttonToEdit.index) setButtonToEdit(null);
+		if (buttonToEdit !== null && button.index === buttonToEdit.index) setButtonToEdit(null);
+		else setButtonToEdit(button);
 	};
 
 	const onRemoveButton = (button = defaultButton) => {
@@ -53,12 +50,14 @@ const ButtonList = ({ setLoadState, setConfirmState }) => {
 	}, [buttons, setLoadState]);
 
 	return (
-		<div className='buttons__row' ref={buttonListRef}>
+		<div className='buttons__row'>
+			<p className='buttonList__scene'>Scene Buttons</p>
 			{buttons.map((button) => {
 				return (
 					<Button
 						index={button.index}
 						key={`buttons-${button.index}`}
+						highlight={buttonToEdit && buttonToEdit.index === button.index ? true : false}
 						onRemove={() => onRemoveButton(button)}
 						onEdit={() => onEditButton(button)}
 					/>

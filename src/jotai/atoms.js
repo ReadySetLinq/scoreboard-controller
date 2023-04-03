@@ -32,7 +32,8 @@ export const widgetsAtom = atomWithStorage('rsl.scoreboard.widgets', { ...initia
 
 export const defaultButton = {
 	index: 0,
-	online: false,
+	isOnline: false,
+	isEditing: false,
 	title: '',
 	xpnTakeId: 0,
 };
@@ -44,6 +45,15 @@ export const buttonsAtom = atomWithStorage('rsl.scoreboard.buttons', [...initial
 export const initialLockedModeState = true;
 
 export const lockedModeAtom = atomWithStorage('rsl.scoreboard.lockedMode', !!initialLockedModeState);
+
+export const defaultNodeList = [
+	{ id: 0, name: 'homeScoreElement' },
+	{ id: 1, name: 'awayScoreElement' },
+	{ id: 2, name: 'periodElement' },
+	{ id: 3, name: 'buttonListElement' },
+];
+
+export const nodesAtom = atomWithStorage('rsl.scoreboard.nodes', [...defaultNodeList]);
 
 export const defaultNetworkSettingsData = {
 	ip: 'localhost',
@@ -76,6 +86,9 @@ const Atoms = {
 	buttonsAtom,
 	initialLockedModeState,
 	lockedModeAtom,
+	defaultNodeList,
+	nodesAtom,
+	defaultNetworkSettingsData,
 	defaultConnection,
 	connectionAtom,
 	initialUrlParams,

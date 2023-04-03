@@ -8,18 +8,18 @@ import { getButtonSelector, setButtonAtom, getLockedModeAtom } from '../jotai/se
 import { zeroPad } from '../services/utilities';
 import Emitter from '../services/emitter';
 
-const Button = ({ index, onRemove, onEdit }) => {
+const Button = ({ index, highlight, onRemove, onEdit }) => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const button = useAtomValue(getButtonSelector(index));
 	const setButton = useSetAtom(setButtonAtom(index));
-	const isOnlineClass = useMemo(() => (button.online ? 'isOnline' : ''), [button.online]);
+	const isOnlineClass = useMemo(() => (button.isOnline ? 'isOnline' : ''), [button.isOnline]);
 	const isHiddenClass = useMemo(() => (isLocked ? 'hidden' : ''), [isLocked]);
 
 	const onButtonClick = useCallback(() => {
 		const _tmpUUID = `scoreboard-setTakeItemOnline-${generate()}`;
 
 		Emitter.once(_tmpUUID, (data) => {
-			setButton({ online: !!data.response });
+			setButton({ isOnline: !!data.response });
 		});
 
 		// Take the text back online
@@ -32,7 +32,7 @@ const Button = ({ index, onRemove, onEdit }) => {
 	useEffect(() => {
 		const _tmpUUID = `scoreboard-getTakeItemStatus-${generate()}`;
 		Emitter.once(_tmpUUID, ({ response = false }) => {
-			setButton({ online: response });
+			setButton({ isOnline: response });
 		});
 
 		Emitter.emit('xpn.GetTakeItemStatus', {
@@ -46,7 +46,7 @@ const Button = ({ index, onRemove, onEdit }) => {
 	}, [button.xpnTakeId, setButton]);
 
 	return (
-		<div className='button'>
+		<div className={`button ${highlight ? 'highlight' : ''}`}>
 			<div className='button-name'>
 				<button className={`button-remove ${isHiddenClass}`} title='Delete' onClick={onRemove}>
 					<RiDeleteBinLine title='Delete' />

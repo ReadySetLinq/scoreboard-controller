@@ -99,14 +99,12 @@ const Period = ({ setLoadState }) => {
 					disabled={isLocked}
 					type='text'
 					value={period.widgetName}
-					placeholder='Widget Name'
+					placeholder='Period Widget Name'
 					onChange={(event) => setPeriod({ widgetName: event.target.value })}
 				/>
 			</div>
 			<div className='period-score'>
 				<input
-					className={isLocked ? 'disabled' : ''}
-					disabled={isLocked}
 					type='text'
 					value={period.value}
 					placeholder='Widget Value'
