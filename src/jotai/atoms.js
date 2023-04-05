@@ -47,10 +47,10 @@ export const initialLockedModeState = true;
 export const lockedModeAtom = atomWithStorage('rsl.scoreboard.lockedMode', !!initialLockedModeState);
 
 export const defaultNodeList = [
-	{ id: 0, name: 'homeScoreElement' },
-	{ id: 1, name: 'awayScoreElement' },
-	{ id: 2, name: 'periodElement' },
-	{ id: 3, name: 'buttonListElement' },
+	{ id: 0, order: 0, name: 'homeScoreElement' },
+	{ id: 1, order: 1, name: 'awayScoreElement' },
+	{ id: 2, order: 2, name: 'periodElement' },
+	{ id: 3, order: 3, name: 'buttonListElement' },
 ];
 
 export const nodesAtom = atomWithStorage('rsl.scoreboard.nodes', [...defaultNodeList]);

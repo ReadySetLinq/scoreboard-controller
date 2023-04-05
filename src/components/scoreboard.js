@@ -6,7 +6,7 @@ import {
 	getButtonsSelector,
 	getLockedModeAtom,
 	setLockedModeAtom,
-	getNodesAtom,
+	getNodesSortedAtom,
 	setNodesAtom,
 } from '../jotai/selectors';
 import Wrapper from './wrapper';
@@ -26,7 +26,7 @@ const Scoreboard = () => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const setIsLocked = useSetAtom(setLockedModeAtom);
 	const buttons = useAtomValue(getButtonsSelector);
-	const nodes = useAtomValue(getNodesAtom);
+	const sortedNodes = useAtomValue(getNodesSortedAtom);
 	const setNodes = useSetAtom(setNodesAtom);
 	const [buttonToEdit, setButtonToEdit] = useState(null);
 	const [confirmState, setConfirmState] = useState({
@@ -42,69 +42,82 @@ const Scoreboard = () => {
 		awayScore: false,
 		buttons: false,
 	});
-	const maxNodeLength = useMemo(() => nodes.length - 1, [nodes]);
-	const homeScoreIndex = useMemo(() => nodes.find((node) => node.name === 'homeScoreElement').id, [nodes]);
-	const awayScoreIndex = useMemo(() => nodes.find((node) => node.name === 'awayScoreElement').id, [nodes]);
-	const periodIndex = useMemo(() => nodes.find((node) => node.name === 'periodElement').id, [nodes]);
-	const buttonListIndex = useMemo(() => nodes.find((node) => node.name === 'buttonListElement').id, [nodes]);
+	const maxNodeLength = useMemo(() => sortedNodes.length - 1, [sortedNodes]);
+	const homeScoreNode = useMemo(() => sortedNodes.find((node) => node.name === 'homeScoreElement'), [sortedNodes]);
+	const awayScoreNode = useMemo(() => sortedNodes.find((node) => node.name === 'awayScoreElement'), [sortedNodes]);
+	const periodNode = useMemo(() => sortedNodes.find((node) => node.name === 'periodElement'), [sortedNodes]);
+	const buttonListNode = useMemo(() => sortedNodes.find((node) => node.name === 'buttonListElement'), [sortedNodes]);
 	const components = useMemo(
 		() =>
 			[
 				{
+					index: homeScoreNode.id,
+					order: homeScoreNode.order,
 					component: <HomeScore name='homeScoreElement' setLoadState={setLoadState} />,
-					index: homeScoreIndex,
 				},
 				{
+					index: awayScoreNode.id,
+					order: awayScoreNode.order,
 					component: <AwayScore name='awayScoreElement' setLoadState={setLoadState} />,
-					index: awayScoreIndex,
 				},
-				{ component: <Period name='periodElement' setLoadState={setLoadState} />, index: periodIndex },
 				{
+					index: periodNode.id,
+					order: periodNode.order,
+					component: <Period name='periodElement' setLoadState={setLoadState} />,
+				},
+				{
+					index: buttonListNode.id,
+					order: buttonListNode.order,
 					component: (
 						<ButtonList name='buttonListElement' setLoadState={setLoadState} setConfirmState={setConfirmState} />
 					),
-					index: buttonListIndex,
 				},
-			].sort((a, b) => a.index - b.index),
-		[homeScoreIndex, awayScoreIndex, periodIndex, buttonListIndex],
+			].sort((a, b) => a.order - b.order),
+		[homeScoreNode, awayScoreNode, periodNode, buttonListNode],
 	);
 	const headerIconClass = useMemo(() => `icon-left icon-clickable ${isLocked ? 'icon-red' : ''}`, [isLocked]);
 	const isLoading = useMemo(() => Object.values(loadState).some((value) => value === false), [loadState]);
 
 	const moveNodeUp = useCallback(
-		(index) => {
-			if (index === 0) return nodes;
+		(id) => {
+			const index = sortedNodes.findIndex((node) => node.id === id);
 
-			const newNodes = [...nodes];
-			const current = nodes[index];
-			const prev = nodes[index - 1];
+			console.log('moveNodeUp', index, sortedNodes[index]);
 
-			newNodes[index - 1] = { ...current, id: prev.id };
-			newNodes[index] = { ...prev, id: current.id };
+			if (index === 0) return sortedNodes;
+
+			const newNodes = [...sortedNodes];
+			const current = newNodes[index];
+			const prev = newNodes[index - 1];
+
+			newNodes[index - 1] = { ...prev, order: current.order };
+			newNodes[index] = { ...current, order: prev.order };
 
 			setNodes(newNodes);
 			return newNodes;
 		},
-		[nodes, setNodes],
+		[sortedNodes, setNodes],
 	);
 
 	const moveNodeDown = useCallback(
 		(id) => {
-			const index = nodes.findIndex((node) => node.id === id);
+			const index = sortedNodes.findIndex((node) => node.id === id);
 
-			if (index === nodes.length - 1) return nodes;
+			console.log('moveNodeDown', index, sortedNodes[index]);
 
-			const newNodes = [...nodes];
+			if (index === sortedNodes.length - 1) return sortedNodes;
+
+			const newNodes = [...sortedNodes];
 			const current = newNodes[index];
 			const next = newNodes[index + 1];
 
-			newNodes[index] = { ...next, id: current.id };
-			newNodes[index + 1] = { ...current, id: next.id };
+			newNodes[index] = { ...current, order: next.order };
+			newNodes[index + 1] = { ...next, order: current.order };
 
 			setNodes(newNodes);
 			return newNodes;
 		},
-		[nodes, setNodes],
+		[sortedNodes, setNodes],
 	);
 
 	const onLockButton = () => setIsLocked(!isLocked);
@@ -129,9 +142,11 @@ const Scoreboard = () => {
 		if (buttonsLoaded) setLoadState((prevState) => ({ ...prevState, buttons: true }));
 	}, [buttons]);
 
+	/*
 	if (isLoading) {
 		return <Load title='Syncing with Xpression' message={'Please wait.'} showXpression={true} />;
 	}
+	// */
 
 	if (confirmState.show) {
 		return (
@@ -178,18 +193,18 @@ const Scoreboard = () => {
 			}}
 		>
 			<div className='buttons'>
-				{components.map(({ component, index }) => (
+				{components.map(({ component, index, order }) => (
 					<div className='moveable' key={`moveable-${component.props.name}`}>
 						<div className='moveable__controls'>
 							<RiArrowUpSLine
-								className={`icon-clickable icon-up ${isLocked || index === 0 ? 'hidden' : ''}`}
+								className={`icon-clickable icon-up ${isLocked || order === 0 ? 'hidden' : ''}`}
 								onClick={() => moveNodeUp(index)}
-								disabled={isLocked || index === 0}
+								disabled={isLocked || order === 0}
 							/>
 							<RiArrowDownSLine
-								className={`icon-clickable arrow-down icon-down ${isLocked || index === maxNodeLength ? 'hidden' : ''}`}
+								className={`icon-clickable arrow-down icon-down ${isLocked || order === maxNodeLength ? 'hidden' : ''}`}
 								onClick={() => moveNodeDown(index)}
-								disabled={isLocked || index === maxNodeLength}
+								disabled={isLocked || order === maxNodeLength}
 							/>
 						</div>
 						<div className='moveable__content'>{component}</div>

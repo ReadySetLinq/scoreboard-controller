@@ -69,6 +69,11 @@ export const getNodesAtom = atom((get) => get(nodesAtom));
 
 export const setNodesAtom = atom(null, (_get, set, value) => set(nodesAtom, value));
 
+export const getNodesSortedAtom = atom((get) => {
+	const nodes = get(nodesAtom);
+	return nodes.sort((a, b) => a.order - b.order);
+});
+
 // Connection
 export const getConnectionAtom = atom((get) => get(connectionAtom));
 
@@ -118,6 +123,7 @@ const Selectors = {
 	setLockedModeAtom,
 	getNodesAtom,
 	setNodesAtom,
+	getNodesSortedAtom,
 	getConnectionAtom,
 	getIsConnectedSelector,
 	getIsConnectingSelector,
