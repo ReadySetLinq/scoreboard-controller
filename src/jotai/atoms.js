@@ -1,6 +1,13 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
+export const defaultWindow = {
+	height: 800,
+	width: 1400,
+};
+
+export const windowAtom = atomWithStorage('rsl.scoreboard.window', { ...defaultWindow });
+
 export const defaultPeriod = {
 	widgetName: 'period',
 	value: '1st',
@@ -84,6 +91,7 @@ export const initialUrlParams = new URLSearchParams(window.location.search);
 export const urlParamsAtom = atom(initialUrlParams);
 
 const Atoms = {
+	windowAtom,
 	defaultHomeScore,
 	defaultAwayScore,
 	defaultGameClock,

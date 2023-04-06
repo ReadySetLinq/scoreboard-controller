@@ -2,6 +2,7 @@ import { atom } from 'jotai';
 import { selectAtom, atomFamily } from 'jotai/utils';
 
 import {
+	windowAtom,
 	widgetsAtom,
 	metadataAtom,
 	buttonsAtom,
@@ -10,6 +11,22 @@ import {
 	nodesAtom,
 	connectionAtom,
 } from './atoms';
+
+// Window
+
+export const getWindowSelector = selectAtom(windowAtom, (window) => window);
+
+export const setWindowAtom = atom(null, (_get, set, value) => set(windowAtom, (prev) => ({ ...prev, ...value })));
+
+export const setWindowHeightAtom = atom(null, (_get, set, value) =>
+	set(windowAtom, (prev) => ({ ...prev, height: value })),
+);
+
+export const setWindowWidthAtom = atom(null, (_get, set, value) =>
+	set(windowAtom, (prev) => ({ ...prev, width: value })),
+);
+
+// Widgets
 
 export const getPeriodSelector = selectAtom(widgetsAtom, (widget) => widget.period);
 export const getHomeScoreSelector = selectAtom(widgetsAtom, (widget) => widget.homeScore);
@@ -130,6 +147,10 @@ export const setConnectionMessageAtom = atom(null, (get, set, item = '') =>
 );
 
 const Selectors = {
+	getWindowSelector,
+	setWindowAtom,
+	setWindowHeightAtom,
+	setWindowWidthAtom,
 	getPeriodSelector,
 	getHomeScoreSelector,
 	getAwayScoreSelector,

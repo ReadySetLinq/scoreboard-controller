@@ -28,6 +28,7 @@
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
+		"debug": "tauri build --debug",
 		"deploy": "tauri build --release"
 	},
 	"eslintConfig": {
