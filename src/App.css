@@ -463,7 +463,6 @@ body {
 }
 
 .button-action {
-  display: inline-flex;
   font-size: .6em;
   margin: 0px 15px 0px 15px;
   padding: 5px 1em 1em 1em;
@@ -487,15 +486,18 @@ body {
 
 .isOnline {
   border: solid 0.5px #66BB6A;
+  color: #222;
 }
 
 .button-action:not(:disabled):hover {
   background: #66BB6A;
+  color: #222;
   cursor: pointer;
 }
 
 .isOnline:not(:disabled):hover {
   background: #ef5350;
+  color: #FAFAFA;
   cursor: pointer;
 }
 
@@ -630,7 +632,7 @@ body {
 }
 
 .disabled {
-  opacity: 0.7 !important;
+  opacity: 0.5 !important;
   cursor: not-allowed !important;
 }
 

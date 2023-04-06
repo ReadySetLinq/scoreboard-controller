@@ -23,7 +23,7 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 	const button = useAtomValue(getButtonSelector(index));
 	const setButton = useSetAtom(setButtonAtom(index));
 	const isOnlineClass = useMemo(() => (button.isOnline ? 'isOnline' : ''), [button.isOnline]);
-	const isHiddenClass = useMemo(() => (isLocked ? 'hidden' : ''), [isLocked]);
+	const isHiddenClass = useMemo(() => (isLocked ? 'no_display' : ''), [isLocked]);
 
 	const onButtonClick = useCallback(() => {
 		if (!isMounted.current) return;

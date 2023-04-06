@@ -220,9 +220,11 @@ const Scoreboard = () => {
 		if (buttonsLoaded) setLoadState((prevState) => ({ ...prevState, buttons: true }));
 	}, [buttons]);
 
+	///*
 	if (isLoading) {
 		return <Load title='Syncing with Xpression' message={'Please wait.'} showXpression={true} />;
 	}
+	// */
 
 	if (confirmState.show) {
 		return (
@@ -271,18 +273,22 @@ const Scoreboard = () => {
 			<div className='buttons'>
 				{components.map(({ component, index, order }) => (
 					<div className='moveable' key={`moveable-${index}-${component.props.name}`}>
-						<div className='moveable__controls'>
-							<RiArrowUpSLine
-								className={`icon-clickable icon-up ${isLocked || order === 0 ? 'hidden' : ''}`}
-								onClick={() => moveNodeUp(order)}
-								disabled={isLocked || order === 0}
-							/>
-							<RiArrowDownSLine
-								className={`icon-clickable arrow-down icon-down ${isLocked || order === metadataOrder ? 'hidden' : ''}`}
-								onClick={() => moveNodeDown(order)}
-								disabled={isLocked || order === metadataOrder}
-							/>
-						</div>
+						{!isLocked && (
+							<div className='moveable__controls'>
+								<RiArrowUpSLine
+									className={`icon-clickable icon-up ${order === 0 ? 'disabled' : ''} ${isLocked ? 'no_display' : ''}`}
+									onClick={() => moveNodeUp(order)}
+									disabled={isLocked || order === 0}
+								/>
+								<RiArrowDownSLine
+									className={`icon-clickable arrow-down icon-down ${order === metadataOrder ? 'disabled' : ''} ${
+										isLocked ? 'no_display' : ''
+									}`}
+									onClick={() => moveNodeDown(order)}
+									disabled={isLocked || order === metadataOrder}
+								/>
+							</div>
+						)}
 						<div className='moveable__content'>{component}</div>
 					</div>
 				))}{' '}
