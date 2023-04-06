@@ -9,7 +9,7 @@ export const objHas = Object.prototype.hasOwnProperty;
 export const zeroPad = (num, places = 3) => String(num).padStart(places, '0');
 
 export const getStyle = (oElm, strCssRule) => {
-	var strValue = '';
+	let strValue = '';
 	if (document.defaultView && document.defaultView.getComputedStyle) {
 		strValue = document.defaultView.getComputedStyle(oElm, '').getPropertyValue(strCssRule);
 	} else if (oElm.currentStyle) {
