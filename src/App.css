@@ -450,16 +450,18 @@ body {
   color: #e57373;
   cursor: pointer;
   background: transparent;
+  border: none;
 }
 
 .button-edit {
   float: right;
   margin-left: 1em;
-    margin-right: 1em;
+  margin-right: 1em;
   margin-top: 0.2em;
   color: #4b71b5;
   cursor: pointer;
   background: transparent;
+  border: none;
 }
 
 .button-action {
@@ -632,7 +634,7 @@ body {
 }
 
 .disabled {
-  opacity: 0.5 !important;
+  opacity: 0.7 !important;
   cursor: not-allowed !important;
 }
 

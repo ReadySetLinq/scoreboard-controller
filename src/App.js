@@ -1,4 +1,5 @@
-import React, { useMemo, lazy, Suspense } from 'react';
+import React, { useEffect, useMemo, lazy, Suspense } from 'react';
+import { invoke } from '@tauri-apps/api/tauri';
 
 import { useConnet } from './hooks/useConnect';
 import Load from './components/load';
@@ -16,7 +17,11 @@ const App = () => {
 		[isConnected, isConnecting],
 	);
 
-	/**/
+	useEffect(() => {
+		invoke('greet', { name: 'World' }).then(console.log).catch(console.error);
+	}, []);
+
+	/*
 	return (
 		<Suspense fallback={<Load title={loadTitle} message={'Please wait.'} showXpression={showConnect} />}>
 			{showConnect ? <Connect /> : <Scoreboard />}
@@ -24,13 +29,13 @@ const App = () => {
 	);
 	//*/
 
-	/*
+	/* */
 	return (
 		<Suspense fallback={<Load title={loadTitle} message={'Please wait.'} showXpression={showConnect} />}>
 			<Scoreboard />
 		</Suspense>
 	);
-	*/
+	//*/
 };
 
 export default App;
