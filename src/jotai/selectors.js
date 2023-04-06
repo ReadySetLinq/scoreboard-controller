@@ -1,7 +1,15 @@
 import { atom } from 'jotai';
 import { selectAtom, atomFamily } from 'jotai/utils';
 
-import { widgetsAtom, buttonsAtom, defaultButton, lockedModeAtom, nodesAtom, connectionAtom } from './atoms';
+import {
+	widgetsAtom,
+	metadataAtom,
+	buttonsAtom,
+	defaultButton,
+	lockedModeAtom,
+	nodesAtom,
+	connectionAtom,
+} from './atoms';
 
 export const getPeriodSelector = selectAtom(widgetsAtom, (widget) => widget.period);
 export const getHomeScoreSelector = selectAtom(widgetsAtom, (widget) => widget.homeScore);
@@ -24,9 +32,27 @@ export const setGameClockAtom = atom(null, (_get, set, value) =>
 	set(widgetsAtom, (prev) => ({ ...prev, gameClock: { ...prev.gameClock, ...value } })),
 );
 
+// Metadata
+export const getMetadataSelector = selectAtom(metadataAtom, (metadata) => metadata);
+
+export const getMetadataIndexSelector = selectAtom(metadataAtom, (metadata) => metadata.index);
+
+export const getMetadataOrderSelector = selectAtom(metadataAtom, (metadata) => metadata.order);
+
+export const setMetadataAtom = atom(null, (_get, set, value) => set(metadataAtom, (prev) => ({ ...prev, ...value })));
+
+export const setMetadataIndexAtom = atom(null, (_get, set, value) =>
+	set(metadataAtom, (prev) => ({ ...prev, index: value })),
+);
+
+export const setMetadataOrderAtom = atom(null, (_get, set, value) =>
+	set(metadataAtom, (prev) => ({ ...prev, order: value })),
+);
+
+// Buttons
 export const getButtonsSelector = selectAtom(buttonsAtom, (button) => button);
 
-export const setButtonsAtom = atom(null, (_get, set, value) => set(buttonsAtom, (prev) => [...prev, ...value]));
+export const setButtonsAtom = atom(null, (_get, set, value) => set(buttonsAtom, value));
 
 export const addButtonAtom = atom(null, (_get, set, value) => set(buttonsAtom, (prev) => [...prev, { ...value }]));
 
@@ -112,6 +138,11 @@ const Selectors = {
 	setHomeScoreAtom,
 	setAwayScoreAtom,
 	setGameClockAtom,
+	getMetadataSelector,
+	getMetadataIndexSelector,
+	getMetadataOrderSelector,
+	setMetadataAtom,
+	setMetadataIndexAtom,
 	getButtonsSelector,
 	setButtonsAtom,
 	addButtonAtom,

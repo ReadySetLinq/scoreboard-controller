@@ -30,8 +30,17 @@ export const initialWidgetsState = {
 
 export const widgetsAtom = atomWithStorage('rsl.scoreboard.widgets', { ...initialWidgetsState });
 
+export const defaultMetadata = {
+	index: 2,
+	order: 2,
+};
+
+export const metadataAtom = atomWithStorage('rsl.scoreboard.metadata', { ...defaultMetadata });
+
 export const defaultButton = {
-	index: 0,
+	index: defaultMetadata.index,
+	order: defaultMetadata.order,
+	isNode: false,
 	isOnline: false,
 	isEditing: false,
 	title: '',
@@ -47,10 +56,9 @@ export const initialLockedModeState = true;
 export const lockedModeAtom = atomWithStorage('rsl.scoreboard.lockedMode', !!initialLockedModeState);
 
 export const defaultNodeList = [
-	{ id: 0, order: 0, name: 'homeScoreElement' },
-	{ id: 1, order: 1, name: 'awayScoreElement' },
-	{ id: 2, order: 2, name: 'periodElement' },
-	{ id: 3, order: 3, name: 'buttonListElement' },
+	{ index: 0, order: 0, name: 'homeScoreElement', isNode: true },
+	{ index: 1, order: 1, name: 'awayScoreElement', isNode: true },
+	{ index: 2, order: 2, name: 'periodElement', isNode: true },
 ];
 
 export const nodesAtom = atomWithStorage('rsl.scoreboard.nodes', [...defaultNodeList]);
@@ -81,6 +89,8 @@ const Atoms = {
 	defaultGameClock,
 	initialWidgetsState,
 	widgetsAtom,
+	defaultMetadata,
+	metadataAtom,
 	defaultButton,
 	initialButtonsState,
 	buttonsAtom,

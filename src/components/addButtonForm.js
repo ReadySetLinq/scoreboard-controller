@@ -2,17 +2,25 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { defaultButton } from '../jotai/atoms';
-import { addButtonAtom, getNextButtonIndexAtom, getNextButtonTakeId, getLockedModeAtom } from '../jotai/selectors';
+import {
+	addButtonAtom,
+	getNextButtonTakeId,
+	getMetadataSelector,
+	setMetadataAtom,
+	getLockedModeAtom,
+} from '../jotai/selectors';
 import { zeroPad } from '../services/utilities';
 
 const AddButtonForm = () => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const addButton = useSetAtom(addButtonAtom);
-	const nextIndex = useAtomValue(getNextButtonIndexAtom);
 	const nextTakeId = useAtomValue(getNextButtonTakeId);
+	const metadata = useAtomValue(getMetadataSelector);
+	const setMetadata = useSetAtom(setMetadataAtom);
 	const [state, setState] = useState({
 		...defaultButton,
-		index: nextIndex,
+		index: metadata.index + 1,
+		order: metadata.order + 1,
 		title: '',
 		xpnTakeId: zeroPad(nextTakeId),
 	});
@@ -33,6 +41,7 @@ const AddButtonForm = () => {
 
 	const onSubmit = (e) => {
 		if (e) e.preventDefault();
+		setMetadata({ ...metadata, index: state.index, order: state.order });
 		addButton({
 			...defaultButton,
 			...state,
@@ -41,8 +50,13 @@ const AddButtonForm = () => {
 	};
 
 	useEffect(() => {
-		setState({ ...defaultButton, index: nextIndex + 1, xpnTakeId: zeroPad(nextTakeId) });
-	}, [nextIndex, nextTakeId]);
+		setState({
+			...defaultButton,
+			index: metadata.index + 1,
+			order: metadata.order + 1,
+			xpnTakeId: zeroPad(nextTakeId),
+		});
+	}, [metadata, nextTakeId]);
 
 	return (
 		<div className='add-button-form'>

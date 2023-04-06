@@ -4,9 +4,11 @@ import { RiLockLine, RiLockUnlockLine, RiArrowUpSLine, RiArrowDownSLine } from '
 
 import {
 	getButtonsSelector,
+	setButtonsAtom,
 	getLockedModeAtom,
 	setLockedModeAtom,
-	getNodesSortedAtom,
+	getMetadataOrderSelector,
+	getNodesAtom,
 	setNodesAtom,
 } from '../jotai/selectors';
 import Wrapper from './wrapper';
@@ -15,7 +17,7 @@ import Period from './period';
 import { HomeScore, AwayScore } from './score';
 import ConfirmBox from './confirmBox';
 import Load from './load';
-import ButtonList from './buttonList';
+import Button from './button';
 import ErrorList from './errorList';
 
 const AddButtonForm = lazy(() => import('./addButtonForm'));
@@ -26,8 +28,10 @@ const Scoreboard = () => {
 	const isLocked = useAtomValue(getLockedModeAtom);
 	const setIsLocked = useSetAtom(setLockedModeAtom);
 	const buttons = useAtomValue(getButtonsSelector);
-	const sortedNodes = useAtomValue(getNodesSortedAtom);
+	const setButtons = useSetAtom(setButtonsAtom);
+	const nodes = useAtomValue(getNodesAtom);
 	const setNodes = useSetAtom(setNodesAtom);
+	const metadataOrder = useAtomValue(getMetadataOrderSelector);
 	const [buttonToEdit, setButtonToEdit] = useState(null);
 	const [confirmState, setConfirmState] = useState({
 		show: false,
@@ -42,82 +46,156 @@ const Scoreboard = () => {
 		awayScore: false,
 		buttons: false,
 	});
-	const maxNodeLength = useMemo(() => sortedNodes.length - 1, [sortedNodes]);
-	const homeScoreNode = useMemo(() => sortedNodes.find((node) => node.name === 'homeScoreElement'), [sortedNodes]);
-	const awayScoreNode = useMemo(() => sortedNodes.find((node) => node.name === 'awayScoreElement'), [sortedNodes]);
-	const periodNode = useMemo(() => sortedNodes.find((node) => node.name === 'periodElement'), [sortedNodes]);
-	const buttonListNode = useMemo(() => sortedNodes.find((node) => node.name === 'buttonListElement'), [sortedNodes]);
+	const homeScoreNode = useMemo(() => nodes.find((node) => node.name === 'homeScoreElement'), [nodes]);
+	const awayScoreNode = useMemo(() => nodes.find((node) => node.name === 'awayScoreElement'), [nodes]);
+	const periodNode = useMemo(() => nodes.find((node) => node.name === 'periodElement'), [nodes]);
 	const components = useMemo(
 		() =>
 			[
-				{
-					index: homeScoreNode.id,
-					order: homeScoreNode.order,
-					component: <HomeScore name='homeScoreElement' setLoadState={setLoadState} />,
-				},
-				{
-					index: awayScoreNode.id,
-					order: awayScoreNode.order,
-					component: <AwayScore name='awayScoreElement' setLoadState={setLoadState} />,
-				},
-				{
-					index: periodNode.id,
-					order: periodNode.order,
-					component: <Period name='periodElement' setLoadState={setLoadState} />,
-				},
-				{
-					index: buttonListNode.id,
-					order: buttonListNode.order,
-					component: (
-						<ButtonList name='buttonListElement' setLoadState={setLoadState} setConfirmState={setConfirmState} />
-					),
-				},
+				...[
+					{
+						index: homeScoreNode.index,
+						order: homeScoreNode.order,
+						isNode: true,
+						component: <HomeScore name='homeScoreElement' setLoadState={setLoadState} />,
+					},
+					{
+						index: awayScoreNode.index,
+						order: awayScoreNode.order,
+						isNode: true,
+						component: <AwayScore name='awayScoreElement' setLoadState={setLoadState} />,
+					},
+					{
+						index: periodNode.index,
+						order: periodNode.order,
+						isNode: true,
+						component: <Period name='periodElement' setLoadState={setLoadState} />,
+					},
+				],
+				...buttons.map((button) => {
+					return {
+						index: button.index,
+						order: button.order,
+						isNode: false,
+						component: (
+							<Button
+								key={`buttons-${button.index}`}
+								name={`customBtn-${button.xpnTakeId}`}
+								index={button.index}
+								highlight={buttonToEdit && buttonToEdit.index === button.index ? true : false}
+								setLoadState={setLoadState}
+								setConfirmState={setConfirmState}
+								buttonToEdit={buttonToEdit}
+								setButtonToEdit={setButtonToEdit}
+							/>
+						),
+					};
+				}),
 			].sort((a, b) => a.order - b.order),
-		[homeScoreNode, awayScoreNode, periodNode, buttonListNode],
+		[
+			homeScoreNode.index,
+			homeScoreNode.order,
+			awayScoreNode.index,
+			awayScoreNode.order,
+			periodNode.index,
+			periodNode.order,
+			buttons,
+			buttonToEdit,
+		],
 	);
 	const headerIconClass = useMemo(() => `icon-left icon-clickable ${isLocked ? 'icon-red' : ''}`, [isLocked]);
 	const isLoading = useMemo(() => Object.values(loadState).some((value) => value === false), [loadState]);
 
 	const moveNodeUp = useCallback(
-		(id) => {
-			const index = sortedNodes.findIndex((node) => node.id === id);
+		(order) => {
+			// Find the node and button with the same index
+			const node = nodes.findIndex((node) => node.order === order);
+			const prevNode = nodes.findIndex((node) => node.order === order - 1);
+			const button = buttons.findIndex((button) => button.order === order);
+			const prevButton = buttons.findIndex((button) => button.order === order - 1);
 
-			console.log('moveNodeUp', index, sortedNodes[index]);
+			const newNodes = [...nodes];
+			const newButtons = [...buttons];
 
-			if (index === 0) return sortedNodes;
+			// If the node exists, update the order
+			if (node >= 0 && order - 1 >= 0)
+				newNodes[node] = {
+					...newNodes[node],
+					order: order - 1,
+				};
 
-			const newNodes = [...sortedNodes];
-			const current = newNodes[index];
-			const prev = newNodes[index - 1];
+			// If the previous node exists, update the order
+			if (prevNode >= 0)
+				newNodes[prevNode] = {
+					...newNodes[prevNode],
+					order: order,
+				};
 
-			newNodes[index - 1] = { ...prev, order: current.order };
-			newNodes[index] = { ...current, order: prev.order };
+			// If the button exists, update the order
+			if (button >= 0 && order - 1 >= 0)
+				newButtons[button] = {
+					...newButtons[button],
+					order: order - 1,
+				};
 
+			// If the previous button exists, update the order
+			if (prevButton >= 0 && order - 1 >= 0)
+				newButtons[prevButton] = {
+					...newButtons[prevButton],
+					order: order,
+				};
+
+			// Update the nodes and buttons
 			setNodes(newNodes);
-			return newNodes;
+			setButtons(newButtons);
 		},
-		[sortedNodes, setNodes],
+		[buttons, nodes, setButtons, setNodes],
 	);
 
 	const moveNodeDown = useCallback(
-		(id) => {
-			const index = sortedNodes.findIndex((node) => node.id === id);
+		(order) => {
+			// Find the node and button with the same index
+			const node = nodes.findIndex((node) => node.order === order);
+			const nextNode = nodes.findIndex((node) => node.order === order + 1);
+			const button = buttons.findIndex((button) => button.order === order);
+			const nextButton = buttons.findIndex((button) => button.order === order + 1);
 
-			console.log('moveNodeDown', index, sortedNodes[index]);
+			const newNodes = [...nodes];
+			const newButtons = [...buttons];
 
-			if (index === sortedNodes.length - 1) return sortedNodes;
+			// If the node exists, update the order
+			if (node >= 0)
+				newNodes[node] = {
+					...newNodes[node],
+					order: order + 1,
+				};
 
-			const newNodes = [...sortedNodes];
-			const current = newNodes[index];
-			const next = newNodes[index + 1];
+			// If the next node exists, update the order
+			if (nextNode >= 0)
+				newNodes[nextNode] = {
+					...newNodes[nextNode],
+					order: order,
+				};
 
-			newNodes[index] = { ...current, order: next.order };
-			newNodes[index + 1] = { ...next, order: current.order };
+			// If the button exists, update the order
+			if (button >= 0)
+				newButtons[button] = {
+					...newButtons[button],
+					order: order + 1,
+				};
 
+			// If the next button exists, update the order
+			if (nextButton >= 0)
+				newButtons[nextButton] = {
+					...newButtons[nextButton],
+					order: order,
+				};
+
+			// Update the nodes and buttons
 			setNodes(newNodes);
-			return newNodes;
+			setButtons(newButtons);
 		},
-		[sortedNodes, setNodes],
+		[buttons, nodes, setButtons, setNodes],
 	);
 
 	const onLockButton = () => setIsLocked(!isLocked);
@@ -147,6 +225,8 @@ const Scoreboard = () => {
 		return <Load title='Syncing with Xpression' message={'Please wait.'} showXpression={true} />;
 	}
 	// */
+
+	console.log(components);
 
 	if (confirmState.show) {
 		return (
@@ -194,17 +274,17 @@ const Scoreboard = () => {
 		>
 			<div className='buttons'>
 				{components.map(({ component, index, order }) => (
-					<div className='moveable' key={`moveable-${component.props.name}`}>
+					<div className='moveable' key={`moveable-${index}-${component.props.name}`}>
 						<div className='moveable__controls'>
 							<RiArrowUpSLine
 								className={`icon-clickable icon-up ${isLocked || order === 0 ? 'hidden' : ''}`}
-								onClick={() => moveNodeUp(index)}
+								onClick={() => moveNodeUp(order)}
 								disabled={isLocked || order === 0}
 							/>
 							<RiArrowDownSLine
-								className={`icon-clickable arrow-down icon-down ${isLocked || order === maxNodeLength ? 'hidden' : ''}`}
-								onClick={() => moveNodeDown(index)}
-								disabled={isLocked || order === maxNodeLength}
+								className={`icon-clickable arrow-down icon-down ${isLocked || order === metadataOrder ? 'hidden' : ''}`}
+								onClick={() => moveNodeDown(order)}
+								disabled={isLocked || order === metadataOrder}
 							/>
 						</div>
 						<div className='moveable__content'>{component}</div>
