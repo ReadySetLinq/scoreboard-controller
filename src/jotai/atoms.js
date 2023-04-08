@@ -4,6 +4,8 @@ import { atomWithStorage } from 'jotai/utils';
 export const defaultWindow = {
 	height: 800,
 	width: 1400,
+	x: null,
+	y: null,
 };
 
 export const windowAtom = atomWithStorage('rsl.scoreboard.window', { ...defaultWindow });

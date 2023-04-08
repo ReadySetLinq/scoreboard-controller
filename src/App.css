@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  background: #282c34;
 }
 
 .App-logo {
@@ -13,8 +14,22 @@
   }
 }
 
+@media screen {
+  .App {
+    background: #282c34;
+  }
+
+  .wrapper {
+    background: #333;
+    width: 50em;
+    margin: 70px auto;
+    box-shadow: 0 4px 0px #333;
+    border-radius: 15px;
+  }
+}
+
 .App-header {
-  background-color: #282c34;
+  background-color: #484747;
   min-height: 100vh;
   display: inline-flex;
   flex-direction: column;
@@ -39,7 +54,6 @@ body {
   margin: 70px auto;
   box-shadow: 0 4px 0px #333;
   border-radius: 15px;
-
 }
 
 .wrapper_header {

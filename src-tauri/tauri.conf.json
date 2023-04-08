@@ -12,7 +12,19 @@
 	},
 	"tauri": {
 		"allowlist": {
-			"all": false
+			"window": {
+				"all": false,
+				"create": true,
+				"requestUserAttention": true,
+				"setResizable": true,
+				"show": true,
+				"hide": true,
+				"close": true,
+				"setSize": true,
+				"setMinSize": true,
+				"setMaxSize": true,
+				"print": true
+			}
 		},
 		"bundle": {
 			"active": true,

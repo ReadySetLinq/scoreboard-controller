@@ -16,15 +16,46 @@ import {
 
 export const getWindowSelector = selectAtom(windowAtom, (window) => window);
 
-export const setWindowAtom = atom(null, (_get, set, value) => set(windowAtom, (prev) => ({ ...prev, ...value })));
+export const setWindowAtom = atom(null, (get, set, value) => {
+	let prev = get(windowAtom);
+	if (value.height) {
+		prev.height = value.height;
+	}
+	if (value.width) {
+		prev.width = value.width;
+	}
+	if (value.x) {
+		prev.x = value.x;
+	}
+	if (value.y) {
+		prev.y = value.y;
+	}
+	return set(windowAtom, prev);
+});
 
-export const setWindowHeightAtom = atom(null, (_get, set, value) =>
-	set(windowAtom, (prev) => ({ ...prev, height: value })),
-);
+export const setWindowHeightAtom = atom(null, (get, set, value) => {
+	let prev = get(windowAtom);
+	prev.height = value;
+	return set(windowAtom, prev);
+});
 
-export const setWindowWidthAtom = atom(null, (_get, set, value) =>
-	set(windowAtom, (prev) => ({ ...prev, width: value })),
-);
+export const setWindowWidthAtom = atom(null, (get, set, value) => {
+	let prev = get(windowAtom);
+	prev.width = value;
+	return set(windowAtom, prev);
+});
+
+export const setWindowXAtom = atom(null, (get, set, value) => {
+	let prev = get(windowAtom);
+	prev.x = value;
+	return set(windowAtom, prev);
+});
+
+export const setWindowYAtom = atom(null, (get, set, value) => {
+	let prev = get(windowAtom);
+	prev.y = value;
+	return set(windowAtom, prev);
+});
 
 // Widgets
 
@@ -33,21 +64,49 @@ export const getHomeScoreSelector = selectAtom(widgetsAtom, (widget) => widget.h
 export const getAwayScoreSelector = selectAtom(widgetsAtom, (widget) => widget.awayScore);
 export const getGameClockSelector = selectAtom(widgetsAtom, (widget) => widget.gameClock);
 
-export const setPeriodAtom = atom(null, (_get, set, value) =>
-	set(widgetsAtom, (prev) => ({ ...prev, period: { ...prev.period, ...value } })),
-);
+export const setPeriodAtom = atom(null, (get, set, value) => {
+	let prev = get(widgetsAtom);
+	if (value.widgetName) {
+		prev.period.widgetName = value.widgetName;
+	}
+	if (value.value) {
+		prev.period.value = value.value;
+	}
+	return set(widgetsAtom, prev);
+});
 
-export const setHomeScoreAtom = atom(null, (_get, set, value) =>
-	set(widgetsAtom, (prev) => ({ ...prev, homeScore: { ...prev.homeScore, ...value } })),
-);
+export const setHomeScoreAtom = atom(null, (get, set, value) => {
+	let prev = get(widgetsAtom);
+	if (value.widgetName) {
+		prev.homeScore.widgetName = value.widgetName;
+	}
+	if (value.value) {
+		prev.homeScore.value = value.value;
+	}
+	return set(widgetsAtom, prev);
+});
 
-export const setAwayScoreAtom = atom(null, (_get, set, value) =>
-	set(widgetsAtom, (prev) => ({ ...prev, awayScore: { ...prev.awayScore, ...value } })),
-);
+export const setAwayScoreAtom = atom(null, (get, set, value) => {
+	let prev = get(widgetsAtom);
+	if (value.widgetName) {
+		prev.awayScore.widgetName = value.widgetName;
+	}
+	if (value.value) {
+		prev.awayScore.value = value.value;
+	}
+	return set(widgetsAtom, prev);
+});
 
-export const setGameClockAtom = atom(null, (_get, set, value) =>
-	set(widgetsAtom, (prev) => ({ ...prev, gameClock: { ...prev.gameClock, ...value } })),
-);
+export const setGameClockAtom = atom(null, (get, set, value) => {
+	let prev = get(widgetsAtom);
+	if (value.widgetName) {
+		prev.gameClock.widgetName = value.widgetName;
+	}
+	if (value.value) {
+		prev.gameClock.value = value.value;
+	}
+	return set(widgetsAtom, prev);
+});
 
 // Metadata
 export const getMetadataSelector = selectAtom(metadataAtom, (metadata) => metadata);
@@ -56,34 +115,58 @@ export const getMetadataIndexSelector = selectAtom(metadataAtom, (metadata) => m
 
 export const getMetadataOrderSelector = selectAtom(metadataAtom, (metadata) => metadata.order);
 
-export const setMetadataAtom = atom(null, (_get, set, value) => set(metadataAtom, (prev) => ({ ...prev, ...value })));
+export const setMetadataAtom = atom(null, (get, set, value) => {
+	let prev = get(metadataAtom);
+	if (value.index) {
+		prev.index = value.index;
+	}
+	if (value.order) {
+		prev.order = value.order;
+	}
+	return set(metadataAtom, prev);
+});
 
-export const setMetadataIndexAtom = atom(null, (_get, set, value) =>
-	set(metadataAtom, (prev) => ({ ...prev, index: value })),
-);
+export const setMetadataIndexAtom = atom(null, (get, set, value) => {
+	let prev = get(metadataAtom);
+	prev.index = value;
+	return set(metadataAtom, prev);
+});
 
-export const setMetadataOrderAtom = atom(null, (_get, set, value) =>
-	set(metadataAtom, (prev) => ({ ...prev, order: value })),
-);
+export const setMetadataOrderAtom = atom(null, (get, set, value) => {
+	let prev = get(metadataAtom);
+	prev.order = value;
+	return set(metadataAtom, prev);
+});
 
 // Buttons
 export const getButtonsSelector = selectAtom(buttonsAtom, (button) => button);
 
 export const setButtonsAtom = atom(null, (_get, set, value) => set(buttonsAtom, value));
 
-export const addButtonAtom = atom(null, (_get, set, value) => set(buttonsAtom, (prev) => [...prev, { ...value }]));
+export const addButtonAtom = atom(null, (get, set, value) => {
+	let prev = get(buttonsAtom);
+	prev.push(value);
+	return set(buttonsAtom, prev);
+});
 
-export const removeButtonAtom = atom(null, (_get, set, value = defaultButton) =>
-	set(buttonsAtom, (prev) => [...prev.filter((button) => button.index !== value.index)]),
-);
+export const removeButtonAtom = atom(null, (get, set, value = defaultButton) => {
+	let prev = get(buttonsAtom);
+	let newButtons = [];
+	for (const button of prev) {
+		if (button.index !== value.index) {
+			newButtons.push(button);
+		}
+	}
+	return set(buttonsAtom, newButtons);
+});
 
 export const getButtonSelector = atomFamily((index) =>
 	atom((get) => {
-		const button = get(buttonsAtom).find((button) => button.index === index);
-		if (button) {
-			return { ...defaultButton, ...button };
+		const buttons = get(buttonsAtom);
+		for (const button of buttons) {
+			if (button.index === index) return button;
 		}
-		return { ...defaultButton };
+		return defaultButton;
 	}),
 );
 
@@ -97,11 +180,43 @@ export const getNextButtonTakeId = atom((get) => {
 	return parseInt(defaultButton.xpnTakeId) + 1;
 });
 
-export const setButtonAtom = atomFamily((index) =>
-	atom(null, (_get, set, value) =>
-		set(buttonsAtom, (prev) => [...prev.map((button) => (button.index === index ? { ...button, ...value } : button))]),
-	),
-);
+export const setButtonAtom = atomFamily((index) => {
+	const buttonSet = (button, value) => {
+		if (value.index) {
+			button.index = value.index;
+		}
+		if (value.order) {
+			button.order = value.order;
+		}
+		if (value.isNode) {
+			button.isNode = value.isNode;
+		}
+		if (value.isOnline) {
+			button.isOnline = value.isOnline;
+		}
+		if (value.isEditing) {
+			button.isEditing = value.isEditing;
+		}
+		if (value.title) {
+			button.title = value.title;
+		}
+		if (value.xpnTakeId) {
+			button.xpnTakeId = value.xpnTakeId;
+		}
+		return button;
+	};
+
+	return atom(null, (get, set, value) => {
+		let prev = get(buttonsAtom);
+		for (const button of prev) {
+			if (button.index === index) {
+				buttonSet(button, value);
+			}
+		}
+
+		return set(buttonsAtom, prev);
+	});
+});
 
 export const getLockedModeAtom = atom((get) => get(lockedModeAtom));
 
@@ -129,28 +244,46 @@ export const getIsStartedSelector = selectAtom(connectionAtom, (connection) => c
 export const getConnectionMessageSelector = selectAtom(connectionAtom, (connection) => connection.displayMsg);
 
 export const setConnectedAtom = atom(null, (get, set, item = false) => {
-	const data = item ? { connected: true, connecting: false } : { connected: false };
-	return set(connectionAtom, { ...get(connectionAtom), ...data });
+	let prev = get(connectionAtom);
+	if (item) {
+		prev.connected = true;
+		prev.connecting = false;
+	} else {
+		prev.connected = false;
+	}
+	return set(connectionAtom, prev);
 });
 
 export const setIsConnectingAtom = atom(null, (get, set, item = false) => {
-	const data = item ? { connecting: true, connected: false } : { connecting: false };
-	return set(connectionAtom, { ...get(connectionAtom), ...data });
+	let prev = get(connectionAtom);
+	if (item) {
+		prev.connecting = true;
+		prev.connected = false;
+	} else {
+		prev.connecting = false;
+	}
+	return set(connectionAtom, prev);
 });
 
-export const setIsStartedAtom = atom(null, (get, set, item = false) =>
-	set(connectionAtom, { ...get(connectionAtom), ...{ isStarted: item } }),
-);
+export const setIsStartedAtom = atom(null, (get, set, item = false) => {
+	let prev = get(connectionAtom);
+	prev.isStarted = item;
+	return set(connectionAtom, prev);
+});
 
-export const setConnectionMessageAtom = atom(null, (get, set, item = '') =>
-	set(connectionAtom, { ...get(connectionAtom), ...{ displayMsg: item } }),
-);
+export const setConnectionMessageAtom = atom(null, (get, set, item = '') => {
+	let prev = get(connectionAtom);
+	prev.displayMsg = item;
+	return set(connectionAtom, prev);
+});
 
 const Selectors = {
 	getWindowSelector,
 	setWindowAtom,
 	setWindowHeightAtom,
 	setWindowWidthAtom,
+	setWindowXAtom,
+	setWindowYAtom,
 	getPeriodSelector,
 	getHomeScoreSelector,
 	getAwayScoreSelector,
