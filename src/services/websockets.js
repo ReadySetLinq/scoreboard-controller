@@ -1,3 +1,5 @@
+import WebSocket from 'tauri-plugin-websocket-api';
+
 import Emitter from './emitter';
 
 import { defaultNetworkSettingsData } from './connection';

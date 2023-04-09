@@ -23,6 +23,8 @@
 				"setSize": true,
 				"setMinSize": true,
 				"setMaxSize": true,
+				"setPosition": true,
+				"setTitle": true,
 				"print": true
 			}
 		},

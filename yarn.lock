@@ -8588,6 +8588,12 @@ tapable@^2.0.0, tapable@^2.1.1, tapable@^2.2.0:
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-2.2.1.tgz#1967a73ef4060a82f12ab96af86d52fdb76eeca0"
   integrity sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==
 
+"tauri-plugin-websocket-api@https://github.com/tauri-apps/tauri-plugin-websocket":
+  version "0.0.0"
+  resolved "https://github.com/tauri-apps/tauri-plugin-websocket#ee8a3465278043d8bfa09f5d79fd9f23bf2a5aa9"
+  dependencies:
+    "@tauri-apps/api" "^1.2.0"
+
 temp-dir@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/temp-dir/-/temp-dir-2.0.0.tgz#bde92b05bdfeb1516e804c9c00ad45177f31321e"

@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, lazy, Suspense } from 'react';
+import React, { useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { invoke } from '@tauri-apps/api/tauri';
+import { appWindow } from '@tauri-apps/api/window';
 
 import { useConnet } from './hooks/useConnect';
 import { getWindowSelector, setWindowAtom } from './jotai/selectors';
@@ -12,6 +13,7 @@ const Scoreboard = lazy(() => import('./components/scoreboard'));
 const Connect = lazy(() => import('./components/connect'));
 
 const App = () => {
+	const isMounted = useRef();
 	const getWindowSize = useAtomValue(getWindowSelector);
 	const setWindowSize = useSetAtom(setWindowAtom);
 	const { isConnected, isConnecting, isStarted } = useConnet(new URLSearchParams(window.location.search));
@@ -22,27 +24,60 @@ const App = () => {
 	);
 
 	useEffect(() => {
-		invoke('greet', { name: 'World' }).then(console.log).catch(console.error);
-	}, []);
+		if (!isMounted.current) {
+			let position = appWindow.outerPosition();
+			if (getWindowSize.x && getWindowSize.x !== position.x) {
+				position.x = getWindowSize.x;
+			}
+			if (getWindowSize.y && getWindowSize.y !== position.y) {
+				position.y = getWindowSize.y;
+			}
 
-	useEffect(() => {
-		invoke('set_window_size', { width: getWindowSize.width, height: getWindowSize.height })
-			.then(console.log)
-			.catch(console.error);
-	}, [getWindowSize]);
+			invoke('set_window', {
+				width: getWindowSize.width,
+				height: getWindowSize.height,
+				x: position.x,
+				y: position.y,
+			}).catch(console.error);
+		}
 
-	useEffect(() => {
-		// Detect when the window size has changed and update the width and height atom selectors
-		const handleResize = () => {
-			setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-		};
-
-		window.addEventListener('resize', handleResize);
+		isMounted.current = true;
 
 		return () => {
-			window.removeEventListener('resize', handleResize);
+			isMounted.current = false;
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	useEffect(() => {
+		let unlisten = () => {};
+		const watch = async () => {
+			unlisten = await appWindow.onMoved(({ payload: position }) => {
+				setWindowSize({ x: position.x, y: position.y });
+			});
+		};
+		watch();
+
+		return () => {
+			// you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
+			unlisten();
+		};
+	}, [setWindowSize]);
+
+	useEffect(() => {
+		let unlisten = () => {};
+		const watch = async () => {
+			unlisten = await appWindow.onResized(({ payload: size }) => {
+				setWindowSize({ width: size.width, height: size.height });
+			});
+		};
+		watch();
+
+		return () => {
+			// you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
+			unlisten();
+		};
+	}, [setWindowSize]);
 
 	/*
 	return (

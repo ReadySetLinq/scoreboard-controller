@@ -5,6 +5,12 @@
 
 use tauri::{AppHandle, Manager, PhysicalPosition, PhysicalSize, Size, Wry};
 
+// the payload type must implement `Serialize` and `Clone`.
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+    message: String,
+}
+
 #[tauri::command]
 fn set_window(apphandle: AppHandle<Wry>, width: u32, height: u32, x: u32, y: u32) {
     let window_opt = apphandle.get_window("main");
@@ -24,7 +30,9 @@ fn set_window(apphandle: AppHandle<Wry>, width: u32, height: u32, x: u32, y: u32
 
 fn main() {
     tauri::Builder::default()
+        .setup(|_app| Ok(()))
         .invoke_handler(tauri::generate_handler![set_window])
+        .plugin(tauri_plugin_websocket::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
