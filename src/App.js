@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { invoke } from '@tauri-apps/api/tauri';
 import { appWindow } from '@tauri-apps/api/window';
+import { listen } from '@tauri-apps/api/event';
 
 import { useConnet } from './hooks/useConnect';
 import { getWindowSelector, setWindowAtom } from './jotai/selectors';
@@ -24,7 +25,20 @@ const App = () => {
 	);
 
 	useEffect(() => {
+		let unlisten = () => {};
+
+		const app_event = async () => {
+			unlisten = await listen('app::event', (event) => {
+				if (event.payload) {
+					console.log('app::event', event.payload);
+				}
+			});
+		};
+		app_event();
+
 		if (!isMounted.current) {
+			appWindow.emit('app::event', 'App Mounted');
+
 			let position = appWindow.outerPosition();
 			if (getWindowSize.x && getWindowSize.x !== position.x) {
 				position.x = getWindowSize.x;
@@ -45,6 +59,7 @@ const App = () => {
 
 		return () => {
 			isMounted.current = false;
+			unlisten();
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
