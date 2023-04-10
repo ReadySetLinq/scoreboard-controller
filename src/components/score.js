@@ -88,7 +88,7 @@ const Home = ({ setLoadState }) => {
 			}
 		});
 
-		Emitter.emit('xpn.EditCounterWidget', {
+		Emitter.emit('xpn::EditCounterWidget', {
 			uuid: _tmpUUID,
 			name: homeScore.widgetName,
 			value: homeScore.value,
@@ -96,9 +96,6 @@ const Home = ({ setLoadState }) => {
 
 		updateScroll(homeScore.widgetName);
 
-		return () => {
-			Emitter.off(_tmpUUID);
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scoreValue]);
 
@@ -117,14 +114,13 @@ const Home = ({ setLoadState }) => {
 		});
 
 		timerHomeScoreName.current = setTimeout(() => {
-			Emitter.emit('xpn.GetCounterWidgetValue', {
+			Emitter.emit('xpn::GetCounterWidgetValue', {
 				uuid: _tmpUUID,
 				name: homeScore.widgetName,
 			});
 		}, 250);
 
 		return () => {
-			Emitter.off(_tmpUUID);
 			clearTimeout(timerHomeScoreName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,7 +189,7 @@ const Away = ({ setLoadState }) => {
 			}
 		});
 
-		Emitter.emit('xpn.EditCounterWidget', {
+		Emitter.emit('xpn::EditCounterWidget', {
 			uuid: _tmpUUID,
 			name: awayScore.widgetName,
 			value: awayScore.value,
@@ -201,9 +197,6 @@ const Away = ({ setLoadState }) => {
 
 		updateScroll(awayScore.widgetName);
 
-		return () => {
-			Emitter.off(_tmpUUID);
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scoreValue]);
 
@@ -222,14 +215,13 @@ const Away = ({ setLoadState }) => {
 		});
 
 		timerAwayScoreName.current = setTimeout(() => {
-			Emitter.emit('xpn.GetCounterWidgetValue', {
+			Emitter.emit('xpn::GetCounterWidgetValue', {
 				uuid: _tmpUUID,
 				name: awayScore.widgetName,
 			});
 		}, 250);
 
 		return () => {
-			Emitter.off(_tmpUUID);
 			clearTimeout(timerAwayScoreName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps

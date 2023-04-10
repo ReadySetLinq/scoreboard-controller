@@ -40,9 +40,9 @@ const ErrorList = () => {
 		};
 	}, []);
 
-	useEmitter('xpression.error', (error) => {
+	useEmitter('xpression::error', (error) => {
 		if (!isMounted.current) return;
-		console.log('xpression.error', error);
+		console.log('xpression::error', error);
 
 		setErrorState((prevErrors) => {
 			return [

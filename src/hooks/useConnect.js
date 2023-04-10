@@ -48,18 +48,17 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 		if (urlParams.has('username')) settings.userName = urlParams.get('username');
 		if (urlParams.has('password')) settings.password = urlParams.get('password');
 
-		if (startup || !isEqual(connection.settings, settings)) Emitter.emit('conn.updateSettings', settings);
+		if (startup || !isEqual(connection.settings, settings)) Emitter.emit('conn::updateSettings', settings);
 		if (startup) {
 			setStartup(false);
 		}
-		//if (hasUpdated) Emitter.emit('conn.connect', {});
 	}, [urlParams, getConnectionState, startup]);
 
 	useEffect(() => {
 		isMounted.current = true;
 
 		debounce(() => {
-			if (isMounted.current && !isConnected && !isConnecting) Emitter.emit('conn.connect', {});
+			if (isMounted.current && !isConnected && !isConnecting) Emitter.emit('conn::connect', {});
 		}, 500)();
 
 		return () => {
@@ -68,26 +67,26 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	useEmitter('network.disconnected', (displayMsg = '') => {
+	useEmitter('network::disconnected', (displayMsg = '') => {
 		if (!isMounted.current) return;
 		setConnectedStore(false);
 		setIsConnectingStore(false);
 		setConnectionMessageStore(displayMsg);
 	});
 
-	useEmitter('conn.status', ({ connected = false, connecting = false, displayMsg = '' }) => {
+	useEmitter('conn::status', ({ connected = false, connecting = false, displayMsg = '' }) => {
 		if (!isMounted.current) return;
 		setConnectedStore(connected);
 		setIsConnectingStore(connecting);
 		setConnectionMessageStore(displayMsg);
 	});
 
-	useEmitter('conn.displayMsg', (displayMsg = '') => {
+	useEmitter('conn::displayMsg', (displayMsg = '') => {
 		if (!isMounted.current) return;
 		setConnectionMessageStore(displayMsg);
 	});
 
-	useEmitter('network.connectionMsg', (displayMsg = '') => {
+	useEmitter('network::connectionMsg', (displayMsg = '') => {
 		if (!isMounted.current) return;
 		setConnectionMessageStore(displayMsg);
 	});
@@ -98,7 +97,7 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 		setConnectionMessageStore('Connected! Starting controller...');
 	});
 
-	useEmitter('network.connecting', (displayMsg = '') => {
+	useEmitter('network::connecting', (displayMsg = '') => {
 		if (!isMounted.current) return;
 		setConnectedStore(false);
 		setIsConnectingStore(true);
@@ -106,7 +105,7 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 		setConnectionMessageStore(displayMsg);
 	});
 
-	useEmitter('network.connected', () => {
+	useEmitter('network::connected', () => {
 		if (!isMounted.current) return;
 		setConnectedStore(true);
 		setIsConnectingStore(false);

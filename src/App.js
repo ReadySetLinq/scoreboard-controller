@@ -2,9 +2,10 @@ import React, { useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { invoke } from '@tauri-apps/api/tauri';
 import { appWindow } from '@tauri-apps/api/window';
-import { listen } from '@tauri-apps/api/event';
 
 import { useConnet } from './hooks/useConnect';
+import { useEmitter } from './hooks/useEmitter';
+import Emitter from './services/emitter';
 import { getWindowSelector, setWindowAtom } from './jotai/selectors';
 import Load from './components/load';
 
@@ -28,9 +29,9 @@ const App = () => {
 		let unlisten = () => {};
 
 		const app_event = async () => {
-			unlisten = await listen('app::event', (event) => {
+			unlisten = await Emitter.on('app::event', (event) => {
 				if (event.payload) {
-					console.log('app::event', event.payload);
+					console.log('useEffect app::event', event.payload);
 				}
 			});
 		};
@@ -93,6 +94,10 @@ const App = () => {
 			unlisten();
 		};
 	}, [setWindowSize]);
+
+	useEmitter('app::event', ({ payload }) => {
+		console.log('useEmitter app::event', payload);
+	});
 
 	/*
 	return (

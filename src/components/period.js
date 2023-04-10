@@ -44,23 +44,19 @@ const Period = ({ setLoadState }) => {
 				}
 			});
 
-			Emitter.emit('xpn.SetTextListWidgetItemIndex', {
+			Emitter.emit('xpn::SetTextListWidgetItemIndex', {
 				uuid: _tmpUUID_index,
 				name: period.widgetName,
 				index: '0',
 			});
 		});
 
-		Emitter.emit('xpn.SetTextListWidgetValues', {
+		Emitter.emit('xpn::SetTextListWidgetValues', {
 			uuid: _tmpUUID_set,
 			name: period.widgetName,
 			values: period.value,
 		});
 
-		return () => {
-			Emitter.off(_tmpUUID_set);
-			Emitter.off(_tmpUUID_index);
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [periodValue]);
 
@@ -78,14 +74,13 @@ const Period = ({ setLoadState }) => {
 		});
 
 		timerPeriodName.current = setTimeout(() => {
-			Emitter.emit('xpn.GetTextListWidgetValue', {
+			Emitter.emit('xpn::GetTextListWidgetValue', {
 				uuid: _tmpUUID,
 				name: period.widgetName,
 			});
 		}, 250);
 
 		return () => {
-			Emitter.off(_tmpUUID);
 			clearTimeout(timerPeriodName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -9,17 +9,18 @@ export const useEmitter = (event = '', callback = () => {}) => {
 
 	useEffect(() => {
 		isMounted.current = true;
+		let unlisten = () => {};
 
-		debounce(() => {
+		debounce(async () => {
 			listenerOn.current = true;
-			Emitter.on(`${event}`, (response) => {
+			unlisten = await Emitter.on(`${event.replace('.', '::')}`, (response) => {
 				if (isMounted.current) callback(response);
 			});
 		}, 250)();
 
 		return () => {
 			isMounted.current = false;
-			if (listenerOn.current) Emitter.off(`${event}`);
+			if (listenerOn.current) unlisten();
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);

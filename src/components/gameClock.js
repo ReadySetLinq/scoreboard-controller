@@ -109,7 +109,7 @@ const GameClock = () => {
 				console.log(_tmpUUID, response);
 			});
 
-			Emitter.emit('xpn.StartClockWidget', {
+			Emitter.emit('xpn::StartClockWidget', {
 				uuid: _tmpUUID,
 				name: gameClock.widgetName,
 			});
@@ -119,15 +119,12 @@ const GameClock = () => {
 				console.log(_tmpUUID, response);
 			});
 
-			Emitter.emit('xpn.StartClockWidget', {
+			Emitter.emit('xpn::StartClockWidget', {
 				uuid: _tmpUUID,
 				name: gameClock.widgetName,
 			});
 		}
 
-		return () => {
-			Emitter.off(_tmpUUID);
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [state.running]);
 
@@ -142,7 +139,7 @@ const GameClock = () => {
 			onClockChange(`${minutes}:${seconds}`);
 		});
 
-		Emitter.emit('xpn.GetClockWidgetTimerValue', {
+		Emitter.emit('xpn::GetClockWidgetTimerValue', {
 			uuid: _tmpUUID_value,
 			name: gameClock.widgetName,
 		});
@@ -152,16 +149,12 @@ const GameClock = () => {
 			console.log(_tmpUUID_callback, response);
 		});
 
-		Emitter.emit('xpn.SetClockWidgetCallback', {
+		Emitter.emit('xpn::SetClockWidgetCallback', {
 			uuid: _tmpUUID_callback,
 			name: gameClock.widgetName,
 			callback: onClockCallback,
 		});
 
-		return () => {
-			Emitter.off(_tmpUUID_value);
-			Emitter.off(_tmpUUID_callback);
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [clockName]);
 

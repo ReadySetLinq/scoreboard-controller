@@ -35,7 +35,7 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 		});
 
 		// Take the text back online
-		Emitter.emit('xpn.SetTakeItemOnline', {
+		Emitter.emit('xpn::SetTakeItemOnline', {
 			uuid: _tmpUUID,
 			takeID: button.xpnTakeId,
 		});
@@ -45,17 +45,17 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 		if (!isMounted.current) return;
 
 		const _tmpUUID = `scoreboard-getTakeItemStatus-${generate()}`;
-		Emitter.once(_tmpUUID, ({ response = false }) => {
+		const unlisten = Emitter.once(_tmpUUID, ({ response = false }) => {
 			setButton({ isOnline: response });
 		});
 
-		Emitter.emit('xpn.GetTakeItemStatus', {
+		Emitter.emit('xpn::GetTakeItemStatus', {
 			uuid: _tmpUUID,
 			takeID: button.xpnTakeId,
 		});
 
 		return () => {
-			Emitter.off(_tmpUUID);
+			unlisten();
 		};
 	}, [button.xpnTakeId, setButton]);
 
