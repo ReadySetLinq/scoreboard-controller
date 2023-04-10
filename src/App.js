@@ -26,7 +26,7 @@ const App = () => {
 	);
 
 	useEffect(() => {
-		let unlisten = () => {};
+		let unlisten = () => null;
 
 		const app_event = async () => {
 			unlisten = await Emitter.on('app::event', (event) => {
@@ -66,7 +66,7 @@ const App = () => {
 	}, []);
 
 	useEffect(() => {
-		let unlisten = () => {};
+		let unlisten = () => null;
 		const watch = async () => {
 			unlisten = await appWindow.onMoved(({ payload: position }) => {
 				setWindowSize({ x: position.x, y: position.y });
@@ -81,7 +81,7 @@ const App = () => {
 	}, [setWindowSize]);
 
 	useEffect(() => {
-		let unlisten = () => {};
+		let unlisten = () => null;
 		const watch = async () => {
 			unlisten = await appWindow.onResized(({ payload: size }) => {
 				setWindowSize({ width: size.width, height: size.height });
