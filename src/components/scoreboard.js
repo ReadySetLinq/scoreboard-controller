@@ -220,7 +220,7 @@ const Scoreboard = () => {
 		if (buttonsLoaded) setLoadState((prevState) => ({ ...prevState, buttons: true }));
 	}, [buttons]);
 
-	/*
+	/* TOD: Re-add this for main deployment
 	if (isLoading) {
 		return <Load title='Syncing with Xpression' message={'Please wait.'} showXpression={true} />;
 	}

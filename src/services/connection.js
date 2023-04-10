@@ -91,7 +91,7 @@ export class Connection {
 		this.wsConnected = false;
 
 		this.displayMsg = 'Attempting to connect...';
-		//webSockets.connect(this.settings);
+		// TODO Uncomment this out later webSockets.connect(this.settings);
 
 		Emitter.emit('network::connecting', this.displayMsg);
 	};
@@ -181,183 +181,209 @@ export class Connection {
 		Emitter.emit('network::connectionMsg', this.displayMsg);
 	};
 
+	onStatusService = (_msg = { service: 'status' }) => {
+		if (objHas.call(_msg, 'data') && objHas.call(_msg.data, 'type')) {
+			switch (_msg.data.type) {
+				case 'login': {
+					const _loginMsg = _msg.data.message.trim();
+					if (_loginMsg === `Logged in as user: ${this.settings.userName}`) {
+						Emitter.emit('xpression::loggedIn', {
+							data: _msg.data,
+						});
+						this.loggedIn = true;
+					}
+					break;
+				}
+				case 'error': {
+					Emitter.emit('xpression::error', {
+						data: _msg.data,
+					});
+					break;
+				}
+				case 'logout': {
+					Emitter.emit('xpression::loggedOut', {
+						data: _msg.data,
+					});
+					this.loggedIn = false;
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	};
+
+	onXpressionTakeItem = (_msg = { service: 'xpression', data: { category: 'takeItem' } }) => {
+		// Check for generic responses
+		if (
+			isEqual(_msg.data.action, 'SetTakeItemOnline') ||
+			isEqual(_msg.data.action, 'SetTakeItemOffline') ||
+			isEqual(_msg.data.action, 'GetTakeItemStatus')
+		) {
+			Emitter.emit(`takeItem-${_msg.data.value.takeID}`, {
+				uuid: _msg.data.value.uuid,
+				takeID: _msg.data.value.takeID,
+				action: _msg.data.action,
+				response: _msg.data.value.response,
+			});
+		}
+		// Send custom UUID response
+		Emitter.emit(`${_msg.data.value.uuid}`, {
+			uuid: _msg.data.value.uuid,
+			takeID: _msg.data.value.takeID,
+			action: _msg.data.action,
+			response: _msg.data.value.response,
+		});
+	};
+
+	onXpressionWidget = (_msg = { service: 'xpression', data: { category: 'widget' } }) => {
+		let emitEvent = '';
+		switch (_msg.data.action.trim().toLowerCase()) {
+			case 'editcounterwidget':
+				emitEvent = `editCounterWidget-${_msg.data.value.name}`;
+				break;
+			case 'increasecounterwidget':
+				emitEvent = `increaseCounterWidget-${_msg.data.value.name}`;
+				break;
+			case 'decreasecounterwidget':
+				emitEvent = `decreaseCounterWidget-${_msg.data.value.name}`;
+				break;
+			case 'getcounterwidget':
+				emitEvent = `getCounterWidget-${_msg.data.value.name}`;
+				break;
+			case 'getcounterwidgetvalue':
+				emitEvent = `getCounterWidgetValue-${_msg.data.value.name}`;
+				break;
+			case 'setcounterwidgetvalue':
+				emitEvent = `getClockWidgetTimerValue-${_msg.data.value.name}`;
+				break;
+			case 'editclockwidget':
+				emitEvent = `getClockWidgetValue-${_msg.data.value.name}`;
+				break;
+			case 'startclockwidget':
+				emitEvent = `startClockWidget-${_msg.data.value.name}`;
+				break;
+			case 'stopclockwidget':
+				emitEvent = `stopClockWidget-${_msg.data.value.name}`;
+				break;
+			case 'resetclockwidget':
+				emitEvent = `resetClockWidget-${_msg.data.value.name}`;
+				break;
+			case 'getclockwidget':
+				emitEvent = `editClockWidgetStartTime-${_msg.data.value.name}`;
+				break;
+			case 'getclockwidgetvalue':
+				emitEvent = `setClockWidgetTimerValue-${_msg.data.value.name}`;
+				break;
+			case 'setclockwidgetvalue':
+				emitEvent = `SetClockWidgetCallback-${_msg.data.value.name}`;
+				break;
+			default:
+				break;
+		}
+
+		// Check for generic responses
+		if (emitEvent !== '') {
+			Emitter.emit(`editCounterWidget-${_msg.data.value.name}`, {
+				uuid: _msg.data.value.uuid,
+				name: _msg.data.value.name,
+				action: _msg.data.action,
+				response: _msg.data.value.response,
+			});
+		}
+
+		// Send custom UUID response
+		Emitter.emit(`${_msg.data.value.uuid}`, {
+			uuid: _msg.data.value.uuid,
+			name: _msg.data.value.name,
+			action: _msg.data.action,
+			response: _msg.data.value.response,
+		});
+	};
+
+	onXpressionMain = (_msg = { service: 'xpression', data: { category: 'main' } }) => {
+		switch (_msg.data.action.trim().toLowerCase()) {
+			case 'start':
+				Emitter.emit('xpression::controllerStarted', {
+					uuid: _msg.data.value.uuid,
+					response: _msg.data.value.response,
+				});
+				break;
+			case 'error':
+				Emitter.emit('xpression::error', {
+					uuid: _msg.data.value.uuid,
+					data: {
+						message: _msg.data.value.response,
+					},
+				});
+				break;
+
+			default:
+				// Send custom UUID response
+				Emitter.emit(`${_msg.data.value.uuid}`, {
+					uuid: _msg.data.value.uuid,
+					name: _msg.data.value.name,
+					action: _msg.data.action,
+					response: _msg.data.value.response,
+				});
+				break;
+		}
+	};
+
+	onXpressionDefault = (_msg = { service: 'xpression', data: { category: 'default' } }) => {
+		if (_msg.data.value.name) {
+			Emitter.emit(`${_msg.data.value.uuid}`, {
+				uuid: _msg.data.value.uuid,
+				name: _msg.data.value.name,
+				action: _msg.data.action,
+				response: _msg.data.value.response,
+			});
+		} else {
+			Emitter.emit(`${_msg.data.value.uuid}`, {
+				uuid: _msg.data.value.uuid,
+				takeID: _msg.data.value.takeID,
+				action: _msg.data.action,
+				response: _msg.data.value.response,
+			});
+		}
+	};
+
+	onStatusServer = (_msg = { service: 'status', data: { message: 'server' } }) => {
+		if (objHas.call(_msg, 'data') && objHas.call(_msg.data, 'message')) {
+			if (isEqual(_msg.data.message, 'connected')) {
+				Emitter.emit('network::connected', this.displayMsg);
+			}
+		}
+	};
+
 	// websocket onmessage event listener
 	onMessage = ({ data = '{}' }) => {
 		const _msg = JSON.parse(data);
 		if (_msg && objHas.call(_msg, 'service')) {
 			switch (_msg.service) {
 				case 'status':
-					if (objHas.call(_msg, 'data') && objHas.call(_msg.data, 'type')) {
-						switch (_msg.data.type) {
-							case 'login': {
-								const _loginMsg = _msg.data.message.trim();
-								if (_loginMsg === `Logged in as user: ${this.settings.userName}`) {
-									Emitter.emit('xpression::loggedIn', {
-										data: _msg.data,
-									});
-									this.loggedIn = true;
-								}
-								break;
-							}
-							case 'error': {
-								Emitter.emit('xpression::error', {
-									data: {
-										..._msg.data,
-										message: _msg.data.message ? _msg.data.message.trim() : 'An unknown error occurred',
-									},
-								});
-								break;
-							}
-							default:
-								break;
-						}
-					}
+					this.onStatusService(_msg);
 					break;
 				case 'xpression':
 					if (objHas.call(_msg, 'data') && objHas.call(_msg.data, 'category') && objHas.call(_msg.data, 'action')) {
 						switch (_msg.data.category) {
 							case 'takeitem':
-								// Check for generic responses
-								if (
-									isEqual(_msg.data.action, 'SetTakeItemOnline') ||
-									isEqual(_msg.data.action, 'SetTakeItemOffline') ||
-									isEqual(_msg.data.action, 'GetTakeItemStatus')
-								) {
-									Emitter.emit(`takeItem-${_msg.data.value.takeID}`, {
-										uuid: _msg.data.value.uuid,
-										takeID: _msg.data.value.takeID,
-										action: _msg.data.action,
-										response: _msg.data.value.response,
-									});
-								}
-								// Send custom UUID response
-								Emitter.emit(`${_msg.data.value.uuid}`, {
-									uuid: _msg.data.value.uuid,
-									takeID: _msg.data.value.takeID,
-									action: _msg.data.action,
-									response: _msg.data.value.response,
-								});
-
+								this.onXpressionTakeItem(_msg);
 								break;
 							case 'widget':
-								let emitEvent = '';
-								switch (_msg.data.action.trim().toLowerCase()) {
-									case 'editcounterwidget':
-										emitEvent = `editCounterWidget-${_msg.data.value.name}`;
-										break;
-									case 'increasecounterwidget':
-										emitEvent = `increaseCounterWidget-${_msg.data.value.name}`;
-										break;
-									case 'decreasecounterwidget':
-										emitEvent = `decreaseCounterWidget-${_msg.data.value.name}`;
-										break;
-									case 'getcounterwidget':
-										emitEvent = `getCounterWidget-${_msg.data.value.name}`;
-										break;
-									case 'getcounterwidgetvalue':
-										emitEvent = `getCounterWidgetValue-${_msg.data.value.name}`;
-										break;
-									case 'setcounterwidgetvalue':
-										emitEvent = `getClockWidgetTimerValue-${_msg.data.value.name}`;
-										break;
-									case 'editclockwidget':
-										emitEvent = `getClockWidgetValue-${_msg.data.value.name}`;
-										break;
-									case 'startclockwidget':
-										emitEvent = `startClockWidget-${_msg.data.value.name}`;
-										break;
-									case 'stopclockwidget':
-										emitEvent = `stopClockWidget-${_msg.data.value.name}`;
-										break;
-									case 'resetclockwidget':
-										emitEvent = `resetClockWidget-${_msg.data.value.name}`;
-										break;
-									case 'getclockwidget':
-										emitEvent = `editClockWidgetStartTime-${_msg.data.value.name}`;
-										break;
-									case 'getclockwidgetvalue':
-										emitEvent = `setClockWidgetTimerValue-${_msg.data.value.name}`;
-										break;
-									case 'setclockwidgetvalue':
-										emitEvent = `SetClockWidgetCallback-${_msg.data.value.name}`;
-										break;
-									default:
-										break;
-								}
-
-								// Check for generic responses
-								if (emitEvent !== '') {
-									Emitter.emit(`editCounterWidget-${_msg.data.value.name}`, {
-										uuid: _msg.data.value.uuid,
-										name: _msg.data.value.name,
-										action: _msg.data.action,
-										response: _msg.data.value.response,
-									});
-								}
-
-								// Send custom UUID response
-								Emitter.emit(`${_msg.data.value.uuid}`, {
-									uuid: _msg.data.value.uuid,
-									name: _msg.data.value.name,
-									action: _msg.data.action,
-									response: _msg.data.value.response,
-								});
+								this.onXpressionWidget(_msg);
 								break;
 							case 'main':
-								switch (_msg.data.action.trim().toLowerCase()) {
-									case 'start':
-										Emitter.emit('xpression::controllerStarted', {
-											uuid: _msg.data.value.uuid,
-											response: _msg.data.value.response,
-										});
-										break;
-									case 'error':
-										Emitter.emit('xpression::error', {
-											uuid: _msg.data.value.uuid,
-											data: {
-												message: _msg.data.value.response,
-											},
-										});
-										break;
-
-									default:
-										// Send custom UUID response
-										Emitter.emit(`${_msg.data.value.uuid}`, {
-											uuid: _msg.data.value.uuid,
-											name: _msg.data.value.name,
-											action: _msg.data.action,
-											response: _msg.data.value.response,
-										});
-										break;
-								}
+								this.onXpressionMain(_msg);
 								break;
 							default:
-								if (_msg.data.value.name) {
-									Emitter.emit(`${_msg.data.value.uuid}`, {
-										uuid: _msg.data.value.uuid,
-										name: _msg.data.value.name,
-										action: _msg.data.action,
-										response: _msg.data.value.response,
-									});
-								} else {
-									Emitter.emit(`${_msg.data.value.uuid}`, {
-										uuid: _msg.data.value.uuid,
-										takeID: _msg.data.value.takeID,
-										action: _msg.data.action,
-										response: _msg.data.value.response,
-									});
-								}
+								this.onXpressionDefault(_msg);
 								break;
 						}
 					}
 					break;
 				case 'server':
-					if (objHas.call(_msg, 'data') && objHas.call(_msg.data, 'message')) {
-						if (isEqual(_msg.data.message, 'connected')) {
-							Emitter.emit('network::connected', this.displayMsg);
-						}
-					}
-
+					this.onStatusServer(_msg);
 					break;
 				default:
 					console.warn('Uncaught Message', _msg);

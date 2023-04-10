@@ -9,7 +9,7 @@ export const useEmitter = (event = '', callback = () => {}) => {
 
 	useEffect(() => {
 		isMounted.current = true;
-		let unlisten = () => {};
+		let unlisten = () => null;
 
 		debounce(async () => {
 			listenerOn.current = true;

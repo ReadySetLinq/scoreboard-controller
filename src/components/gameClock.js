@@ -75,7 +75,6 @@ const GameClock = () => {
 		setState((oldState) => ({
 			...oldState,
 			running: true,
-			isStarted: true,
 		}));
 		interval.current = setInterval(() => onTick(), 100);
 	};
@@ -84,7 +83,6 @@ const GameClock = () => {
 		setState((oldState) => ({
 			...oldState,
 			running: false,
-			isStarted: false,
 		}));
 		clearInterval(interval.current);
 	};
@@ -168,6 +166,17 @@ const GameClock = () => {
 		};
 	}, []);
 
+	const btnStartorResume = () =>
+		state.isStarted ? (
+			<button className='stopwatch-start' onClick={onResume}>
+				Resume
+			</button>
+		) : (
+			<button className='stopwatch-start' onClick={onStart}>
+				Start
+			</button>
+		);
+
 	return (
 		<div className='stopwatch'>
 			<input
@@ -183,14 +192,8 @@ const GameClock = () => {
 				<button className='stopwatch-stop' onClick={onStop}>
 					Stop
 				</button>
-			) : state.isStarted ? (
-				<button className='stopwatch-start' onClick={onResume}>
-					Resume
-				</button>
 			) : (
-				<button className='stopwatch-start' onClick={onStart}>
-					Start
-				</button>
+				btnStartorResume()
 			)}
 			<button className='stopwatch-reset' onClick={onReset}>
 				Reset

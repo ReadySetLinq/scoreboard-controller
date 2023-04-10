@@ -11,7 +11,7 @@ export class Websockets {
 	connectTimeout = 0;
 	status = { autoReconnect: true, connecting: false, connected: false };
 	data = { ...defaultNetworkSettingsData };
-	unlisten = () => {};
+	unlisten = () => null;
 
 	constructor() {
 		const listeners = async () => {
@@ -148,7 +148,7 @@ export class Websockets {
 	};
 
 	/**
-	 * utilited by the @function connect to check if the connection is close, if so attempts to reconnect
+	 * utilized by the @function connect to check if the connection is close, if so attempts to reconnect
 	 */
 	_wsCheck = () => {
 		const { ws, connect } = this;
