@@ -8,7 +8,7 @@ export const defaultWindow = {
 	y: null,
 };
 
-export const windowAtom = atomWithStorage('rsl.scoreboard.window', { ...defaultWindow });
+export const windowAtom = atomWithStorage('rsl.scoreboard.window', defaultWindow);
 
 export const defaultPeriod = {
 	widgetName: 'period',
@@ -37,14 +37,14 @@ export const initialWidgetsState = {
 	gameClock: { ...defaultGameClock },
 };
 
-export const widgetsAtom = atomWithStorage('rsl.scoreboard.widgets', { ...initialWidgetsState });
+export const widgetsAtom = atomWithStorage('rsl.scoreboard.widgets', initialWidgetsState);
 
 export const defaultMetadata = {
 	index: 2,
 	order: 2,
 };
 
-export const metadataAtom = atomWithStorage('rsl.scoreboard.metadata', { ...defaultMetadata });
+export const metadataAtom = atomWithStorage('rsl.scoreboard.metadata', defaultMetadata);
 
 export const defaultButton = {
 	index: defaultMetadata.index,
@@ -58,7 +58,7 @@ export const defaultButton = {
 
 export const initialButtonsState = [];
 
-export const buttonsAtom = atomWithStorage('rsl.scoreboard.buttons', [...initialButtonsState]);
+export const buttonsAtom = atomWithStorage('rsl.scoreboard.buttons', initialButtonsState);
 
 export const initialLockedModeState = true;
 
@@ -70,14 +70,20 @@ export const defaultNodeList = [
 	{ index: 2, order: 2, name: 'periodElement', isNode: true },
 ];
 
-export const nodesAtom = atomWithStorage('rsl.scoreboard.nodes', [...defaultNodeList]);
+export const nodesAtom = atomWithStorage('rsl.scoreboard.nodes', defaultNodeList);
 
 export const defaultNetworkSettingsData = {
 	ip: 'localhost',
-	port: 0,
-	userName: 'brtf',
+	port: 8080,
+	userName: '',
 	password: '',
 };
+
+export const networkSettingsAtom = atomWithStorage('rsl.scoreboard.networkSettings', defaultNetworkSettingsData);
+
+export const defaultLogin = false;
+
+export const loginAtom = atom(defaultLogin);
 
 export const defaultConnection = {
 	connected: false,
@@ -87,10 +93,6 @@ export const defaultConnection = {
 };
 
 export const connectionAtom = atom(defaultConnection);
-
-export const initialUrlParams = new URLSearchParams(window.location.search);
-
-export const urlParamsAtom = atom(initialUrlParams);
 
 const Atoms = {
 	windowAtom,
@@ -109,9 +111,10 @@ const Atoms = {
 	defaultNodeList,
 	nodesAtom,
 	defaultNetworkSettingsData,
+	networkSettingsAtom,
+	defaultLogin,
+	loginAtom,
 	defaultConnection,
 	connectionAtom,
-	initialUrlParams,
-	urlParamsAtom,
 };
 export default Atoms;

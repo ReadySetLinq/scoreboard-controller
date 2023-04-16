@@ -9,6 +9,8 @@ import {
 	defaultButton,
 	lockedModeAtom,
 	nodesAtom,
+	networkSettingsAtom,
+	loginAtom,
 	connectionAtom,
 } from './atoms';
 
@@ -232,6 +234,59 @@ export const getNodesSortedAtom = atom((get) => {
 	return nodes.sort((a, b) => a.order - b.order);
 });
 
+// Network Settings
+
+export const getNetworkSettingsAtom = atom((get) => get(networkSettingsAtom));
+
+export const setNetworkSettingsAtom = atom(null, (_get, set, value) => set(networkSettingsAtom, value));
+
+export const getNetworkSettingsIPSelector = selectAtom(networkSettingsAtom, (networkSettings) => networkSettings.ip);
+
+export const setNetworkSettingsIPAtom = atom(null, (get, set, value) => {
+	let prev = get(networkSettingsAtom);
+	prev.ip = value;
+	return set(networkSettingsAtom, prev);
+});
+
+export const getNetworkSettingsPortSelector = selectAtom(
+	networkSettingsAtom,
+	(networkSettings) => networkSettings.port,
+);
+
+export const setNetworkSettingsPortAtom = atom(null, (get, set, value) => {
+	let prev = get(networkSettingsAtom);
+	prev.port = value;
+	return set(networkSettingsAtom, prev);
+});
+
+export const getNetworkSettingsUserNameSelector = selectAtom(
+	networkSettingsAtom,
+	(networkSettings) => networkSettings.userName,
+);
+
+export const setNetworkSettingsUserNameAtom = atom(null, (get, set, value) => {
+	let prev = get(networkSettingsAtom);
+	prev.userName = value;
+	return set(networkSettingsAtom, prev);
+});
+
+export const getNetworkSettingsPasswordSelector = selectAtom(
+	networkSettingsAtom,
+	(networkSettings) => networkSettings.password,
+);
+
+export const setNetworkSettingsPasswordAtom = atom(null, (get, set, value) => {
+	let prev = get(networkSettingsAtom);
+	prev.password = value;
+	return set(networkSettingsAtom, prev);
+});
+
+// Login
+
+export const getLoginAtom = atom((get) => get(loginAtom));
+
+export const setLoginAtom = atom(null, (_get, set, value) => set(loginAtom, value));
+
 // Connection
 export const getConnectionAtom = atom((get) => get(connectionAtom));
 
@@ -309,6 +364,18 @@ const Selectors = {
 	getNodesAtom,
 	setNodesAtom,
 	getNodesSortedAtom,
+	getNetworkSettingsAtom,
+	setNetworkSettingsAtom,
+	getNetworkSettingsIPSelector,
+	setNetworkSettingsIPAtom,
+	getNetworkSettingsPortSelector,
+	setNetworkSettingsPortAtom,
+	getNetworkSettingsUserNameSelector,
+	setNetworkSettingsUserNameAtom,
+	getNetworkSettingsPasswordSelector,
+	setNetworkSettingsPasswordAtom,
+	getLoginAtom,
+	setLoginAtom,
 	getConnectionAtom,
 	getIsConnectedSelector,
 	getIsConnectingSelector,

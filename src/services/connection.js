@@ -1,8 +1,7 @@
 import { isEqual } from 'lodash';
 
-import { webSockets, objHas } from './utilities';
+import { emitter, webSockets, objHas } from './utilities';
 import XpnEvents from './xpnEvents';
-import Emitter from './emitter';
 
 export const defaultNetworkSettingsData = {
 	ip: 'localhost',
@@ -29,25 +28,25 @@ export class Connection {
 	constructor() {
 		const listeners = async () => {
 			this.unlistens.push(
-				await Emitter.on('conn::getStatus', () =>
-					Emitter.emit('conn::status', {
+				await emitter.on('conn::getStatus', () =>
+					emitter.emit('conn::status', {
 						connected: this.connected,
 						connecting: this.connecting,
 						displayMsg: this.displayMsg,
 					}),
 				),
 			);
-			this.unlistens.push(Emitter.on('conn::getDisplayMsg', () => Emitter.emit('conn::displayMsg', this.displayMsg)));
-			this.unlistens.push(Emitter.on('conn::updateSettings', this.updateSettings));
-			this.unlistens.push(Emitter.on('conn::connect', this.connect));
-			this.unlistens.push(Emitter.on('conn::disconnect', this.disconnect));
-			this.unlistens.push(Emitter.on('conn::reconnect', this.reconnect));
-			this.unlistens.push(Emitter.on('conn::sendMessage', this.sendMessage));
-			this.unlistens.push(Emitter.on('ws::onIsConnected', this.onIsConnected));
-			this.unlistens.push(Emitter.on('ws::onOpen', this.onOpen));
-			this.unlistens.push(Emitter.on('ws::onMessage', this.onMessage));
-			this.unlistens.push(Emitter.on('ws::onClose', this.onClose));
-			this.unlistens.push(Emitter.on('ws::onError', this.onError));
+			this.unlistens.push(emitter.on('conn::getDisplayMsg', () => emitter.emit('conn::displayMsg', this.displayMsg)));
+			this.unlistens.push(emitter.on('conn::updateSettings', this.updateSettings));
+			this.unlistens.push(emitter.on('conn::connect', this.connect));
+			this.unlistens.push(emitter.on('conn::disconnect', this.disconnect));
+			this.unlistens.push(emitter.on('conn::reconnect', this.reconnect));
+			this.unlistens.push(emitter.on('conn::sendMessage', this.sendMessage));
+			this.unlistens.push(emitter.on('ws::onIsConnected', this.onIsConnected));
+			this.unlistens.push(emitter.on('ws::onOpen', this.onOpen));
+			this.unlistens.push(emitter.on('ws::onMessage', this.onMessage));
+			this.unlistens.push(emitter.on('ws::onClose', this.onClose));
+			this.unlistens.push(emitter.on('ws::onError', this.onError));
 		};
 		listeners();
 		this.xpnEvents.addListeners();
@@ -93,7 +92,7 @@ export class Connection {
 		this.displayMsg = 'Attempting to connect...';
 		// TODO Uncomment this out later webSockets.connect(this.settings);
 
-		Emitter.emit('network::connecting', this.displayMsg);
+		emitter.emit('network::connecting', this.displayMsg);
 	};
 
 	disconnect = () =>
@@ -153,7 +152,7 @@ export class Connection {
 		this.connected = true;
 		this.autoReconnect = true;
 		this.displayMsg = 'Connected!';
-		Emitter.emit('network::connected', this.displayMsg);
+		emitter.emit('network::connected', this.displayMsg);
 		clearInterval(this.reconnectInterval);
 
 		// Send login message with our saved login data
@@ -168,8 +167,8 @@ export class Connection {
 		this.connected = false;
 		this.displayMsg = ReconnectMsg(timeout, this.autoReconnect, event.reason);
 
-		Emitter.emit('network::connectionMsg', this.displayMsg);
-		Emitter.emit('network::disconnected', this.displayMsg);
+		emitter.emit('network::connectionMsg', this.displayMsg);
+		emitter.emit('network::disconnected', this.displayMsg);
 	};
 
 	// websocket onerror event listener
@@ -178,7 +177,7 @@ export class Connection {
 		this.connecting = false;
 		this.connected = false;
 		this.displayMsg = 'Connection encountered error!';
-		Emitter.emit('network::connectionMsg', this.displayMsg);
+		emitter.emit('network::connectionMsg', this.displayMsg);
 	};
 
 	onStatusService = (_msg = { service: 'status' }) => {
@@ -187,7 +186,7 @@ export class Connection {
 				case 'login': {
 					const _loginMsg = _msg.data.message.trim();
 					if (_loginMsg === `Logged in as user: ${this.settings.userName}`) {
-						Emitter.emit('xpression::loggedIn', {
+						emitter.emit('xpression::loggedIn', {
 							data: _msg.data,
 						});
 						this.loggedIn = true;
@@ -195,13 +194,13 @@ export class Connection {
 					break;
 				}
 				case 'error': {
-					Emitter.emit('xpression::error', {
+					emitter.emit('xpression::error', {
 						data: _msg.data,
 					});
 					break;
 				}
 				case 'logout': {
-					Emitter.emit('xpression::loggedOut', {
+					emitter.emit('xpression::loggedOut', {
 						data: _msg.data,
 					});
 					this.loggedIn = false;
@@ -220,7 +219,7 @@ export class Connection {
 			isEqual(_msg.data.action, 'SetTakeItemOffline') ||
 			isEqual(_msg.data.action, 'GetTakeItemStatus')
 		) {
-			Emitter.emit(`takeItem-${_msg.data.value.takeID}`, {
+			emitter.emit(`takeItem-${_msg.data.value.takeID}`, {
 				uuid: _msg.data.value.uuid,
 				takeID: _msg.data.value.takeID,
 				action: _msg.data.action,
@@ -228,7 +227,7 @@ export class Connection {
 			});
 		}
 		// Send custom UUID response
-		Emitter.emit(`${_msg.data.value.uuid}`, {
+		emitter.emit(`${_msg.data.value.uuid}`, {
 			uuid: _msg.data.value.uuid,
 			takeID: _msg.data.value.takeID,
 			action: _msg.data.action,
@@ -284,7 +283,7 @@ export class Connection {
 
 		// Check for generic responses
 		if (emitEvent !== '') {
-			Emitter.emit(`editCounterWidget-${_msg.data.value.name}`, {
+			emitter.emit(`editCounterWidget-${_msg.data.value.name}`, {
 				uuid: _msg.data.value.uuid,
 				name: _msg.data.value.name,
 				action: _msg.data.action,
@@ -293,7 +292,7 @@ export class Connection {
 		}
 
 		// Send custom UUID response
-		Emitter.emit(`${_msg.data.value.uuid}`, {
+		emitter.emit(`${_msg.data.value.uuid}`, {
 			uuid: _msg.data.value.uuid,
 			name: _msg.data.value.name,
 			action: _msg.data.action,
@@ -304,13 +303,13 @@ export class Connection {
 	onXpressionMain = (_msg = { service: 'xpression', data: { category: 'main' } }) => {
 		switch (_msg.data.action.trim().toLowerCase()) {
 			case 'start':
-				Emitter.emit('xpression::controllerStarted', {
+				emitter.emit('xpression::controllerStarted', {
 					uuid: _msg.data.value.uuid,
 					response: _msg.data.value.response,
 				});
 				break;
 			case 'error':
-				Emitter.emit('xpression::error', {
+				emitter.emit('xpression::error', {
 					uuid: _msg.data.value.uuid,
 					data: {
 						message: _msg.data.value.response,
@@ -320,7 +319,7 @@ export class Connection {
 
 			default:
 				// Send custom UUID response
-				Emitter.emit(`${_msg.data.value.uuid}`, {
+				emitter.emit(`${_msg.data.value.uuid}`, {
 					uuid: _msg.data.value.uuid,
 					name: _msg.data.value.name,
 					action: _msg.data.action,
@@ -332,14 +331,14 @@ export class Connection {
 
 	onXpressionDefault = (_msg = { service: 'xpression', data: { category: 'default' } }) => {
 		if (_msg.data.value.name) {
-			Emitter.emit(`${_msg.data.value.uuid}`, {
+			emitter.emit(`${_msg.data.value.uuid}`, {
 				uuid: _msg.data.value.uuid,
 				name: _msg.data.value.name,
 				action: _msg.data.action,
 				response: _msg.data.value.response,
 			});
 		} else {
-			Emitter.emit(`${_msg.data.value.uuid}`, {
+			emitter.emit(`${_msg.data.value.uuid}`, {
 				uuid: _msg.data.value.uuid,
 				takeID: _msg.data.value.takeID,
 				action: _msg.data.action,
@@ -351,7 +350,7 @@ export class Connection {
 	onStatusServer = (_msg = { service: 'status', data: { message: 'server' } }) => {
 		if (objHas.call(_msg, 'data') && objHas.call(_msg.data, 'message')) {
 			if (isEqual(_msg.data.message, 'connected')) {
-				Emitter.emit('network::connected', this.displayMsg);
+				emitter.emit('network::connected', this.displayMsg);
 			}
 		}
 	};
@@ -387,7 +386,7 @@ export class Connection {
 					break;
 				default:
 					console.warn('Uncaught Message', _msg);
-					Emitter.emit(_msg.service, {
+					emitter.emit(_msg.service, {
 						..._msg.data,
 					});
 					break;

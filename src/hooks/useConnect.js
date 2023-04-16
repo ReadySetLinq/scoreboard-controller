@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAtom, useSetAtom, useAtomValue } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { generate } from 'shortid';
 import { isEqual, debounce } from 'lodash';
 
-import { urlParamsAtom } from '../jotai/atoms';
 import {
+	getNetworkSettingsAtom,
+	setNetworkSettingsAtom,
 	getConnectionAtom,
 	setConnectedAtom,
 	getIsConnectedSelector,
@@ -15,13 +16,13 @@ import {
 	getConnectionMessageSelector,
 	setConnectionMessageAtom,
 } from '../jotai/selectors';
-import Emitter from '../services/emitter';
-import { connection } from '../services/utilities';
+import { emitter, connection } from '../services/utilities';
 import { useEmitter } from './useEmitter';
 
 export const useConnet = (urlSearchParams = new URLSearchParams(window.location.search)) => {
 	const isMounted = useRef(false);
-	const [urlParams, setUrlParams] = useAtom(urlParamsAtom);
+	const networkSettings = useAtomValue(getNetworkSettingsAtom);
+	const setNetworkSettings = useSetAtom(setNetworkSettingsAtom);
 	const getConnectionState = useAtomValue(getConnectionAtom);
 	const setConnectedStore = useSetAtom(setConnectedAtom);
 	const isConnected = useAtomValue(getIsConnectedSelector);
@@ -34,31 +35,30 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 	const [startup, setStartup] = useState(true);
 
 	useEffect(() => {
-		if (urlParams !== urlSearchParams) setUrlParams(urlParams);
-	}, [setUrlParams, urlParams, urlSearchParams]);
-
-	useEffect(() => {
 		let settings = { ...connection.settings };
 
-		if (urlParams.has('ip')) settings.ip = urlParams.get('ip');
+		if (networkSettings.ip) settings.ip = networkSettings.ip;
 		try {
-			if (urlParams.has('port')) settings.port = parseInt(urlParams.get('port'), 0);
+			if (networkSettings.port) settings.port = parseInt(networkSettings.port, 0);
 		} catch {}
 
-		if (urlParams.has('username')) settings.userName = urlParams.get('username');
-		if (urlParams.has('password')) settings.password = urlParams.get('password');
+		if (networkSettings.userName) settings.userName = networkSettings.userName;
+		if (networkSettings.password) settings.password = networkSettings.password;
 
-		if (startup || !isEqual(connection.settings, settings)) Emitter.emit('conn::updateSettings', settings);
+		if (startup || !isEqual(connection.settings, settings)) {
+			setNetworkSettings(settings);
+			emitter.emit('conn::updateSettings', settings);
+		}
 		if (startup) {
 			setStartup(false);
 		}
-	}, [urlParams, getConnectionState, startup]);
+	}, [networkSettings, setNetworkSettings, getConnectionState, startup]);
 
 	useEffect(() => {
 		isMounted.current = true;
 
 		debounce(() => {
-			if (isMounted.current && !isConnected && !isConnecting) Emitter.emit('conn::connect', {});
+			if (isMounted.current && !isConnected && !isConnecting) emitter.emit('conn::connect', {});
 		}, 500)();
 
 		return () => {
@@ -93,7 +93,7 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 
 	useEmitter('xpression.loggedIn', () => {
 		if (!isMounted.current) return;
-		Emitter.emit('xpn.start', { uuid: generate() });
+		emitter.emit('xpn.start', { uuid: generate() });
 		setConnectionMessageStore('Connected! Starting controller...');
 	});
 

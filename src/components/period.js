@@ -5,7 +5,7 @@ import { isEqual } from 'lodash';
 
 import { getPeriodSelector, setPeriodAtom, getLockedModeAtom } from '../jotai/selectors';
 import { useDebounce } from '../services/useDebounce';
-import Emitter from '../services/emitter';
+import { emitter } from '../services/utilities';
 
 const Period = ({ setLoadState }) => {
 	const isMounted = useRef(false);
@@ -37,21 +37,21 @@ const Period = ({ setLoadState }) => {
 
 		const _tmpUUID_set = `scoreboard-setTextListWidgetValues-${generate()}`;
 		const _tmpUUID_index = `scoreboard-setTextListWidgetItemIndex-${generate()}`;
-		Emitter.once(_tmpUUID_set, () => {
-			Emitter.once(_tmpUUID_index, ({ response }) => {
+		emitter.once(_tmpUUID_set, () => {
+			emitter.once(_tmpUUID_index, ({ response }) => {
 				if (response !== false && period.value !== response) {
 					setPeriod({ value: response });
 				}
 			});
 
-			Emitter.emit('xpn::SetTextListWidgetItemIndex', {
+			emitter.emit('xpn::SetTextListWidgetItemIndex', {
 				uuid: _tmpUUID_index,
 				name: period.widgetName,
 				index: '0',
 			});
 		});
 
-		Emitter.emit('xpn::SetTextListWidgetValues', {
+		emitter.emit('xpn::SetTextListWidgetValues', {
 			uuid: _tmpUUID_set,
 			name: period.widgetName,
 			values: period.value,
@@ -67,14 +67,14 @@ const Period = ({ setLoadState }) => {
 		if (timerPeriodName.current) clearTimeout(timerPeriodName.current);
 
 		const _tmpUUID = `scoreboard-getTextListWidgetValue-${generate()}`;
-		Emitter.once(_tmpUUID, ({ response }) => {
+		emitter.once(_tmpUUID, ({ response }) => {
 			if (response !== false) setPeriod({ value: response });
 			else setPeriod({ value: '' });
 			setLoadState((prevState) => ({ ...prevState, period: true }));
 		});
 
 		timerPeriodName.current = setTimeout(() => {
-			Emitter.emit('xpn::GetTextListWidgetValue', {
+			emitter.emit('xpn::GetTextListWidgetValue', {
 				uuid: _tmpUUID,
 				name: period.widgetName,
 			});

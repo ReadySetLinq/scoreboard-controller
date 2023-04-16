@@ -31,7 +31,6 @@ fn set_window(apphandle: AppHandle<Wry>, width: u32, height: u32, x: u32, y: u32
 #[tauri::command]
 fn app_event(apphandle: AppHandle<Wry>, message: String) {
     std::thread::spawn(move || {
-        // Send an emit_all with the event "app_event" and the payload "Hello Tauri!
         let emit_result = apphandle.emit_all("app::event", Payload { message });
 
         match emit_result {
@@ -44,11 +43,9 @@ fn app_event(apphandle: AppHandle<Wry>, message: String) {
 }
 
 fn init(app: &App) {
-    // Not entirely sure, but perhaps you could omit that error type
     let app_handle = app.handle();
 
     std::thread::spawn(move || {
-        // Send an emit_all with the event "app_event" and the payload "Hello Tauri!
         let emit_result = app_handle.emit_all(
             "app::event",
             Payload {
@@ -64,6 +61,7 @@ fn init(app: &App) {
         }
     });
 }
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {

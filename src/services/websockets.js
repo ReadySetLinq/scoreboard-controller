@@ -1,6 +1,6 @@
 import WebSocket from 'tauri-plugin-websocket-api';
 
-import Emitter from './emitter';
+import { emitter } from './utilities';
 
 import { defaultNetworkSettingsData } from './connection';
 
@@ -15,7 +15,7 @@ export class Websockets {
 
 	constructor() {
 		const listeners = async () => {
-			this.unlisten = await Emitter.on('ws::isConnected', this.isConnected);
+			this.unlisten = await emitter.on('ws::isConnected', this.isConnected);
 		};
 		listeners();
 	}
@@ -48,7 +48,7 @@ export class Websockets {
 		};
 		if (networkSettings) this.data = { ...this.data, ...networkSettings };
 		if (this.data.port === 0) {
-			Emitter.emit('ws::onError', {
+			emitter.emit('ws::onError', {
 				event: new Error('Invalid port'),
 			});
 			return;
@@ -64,7 +64,7 @@ export class Websockets {
 				clearTimeout(this.connectInterval); // clear Interval on on open of websocket connection
 				clearTimeout(this.connectTimeout); // clear timeout as its connected now
 
-				Emitter.emit('ws::onOpen', { opened: true });
+				emitter.emit('ws::onOpen', { opened: true });
 				this.status = {
 					...this.status,
 					connecting: false,
@@ -76,7 +76,7 @@ export class Websockets {
 			// websocket onmessage event listener
 			this.ws.onmessage = (ev) => {
 				console.log('websockets connect this.ws.onmessage', ev.data);
-				Emitter.emit('ws::onMessage', { data: ev.data });
+				emitter.emit('ws::onMessage', { data: ev.data });
 			};
 
 			// websocket onclose event listener
@@ -86,13 +86,13 @@ export class Websockets {
 				if (this.timeout > 70000) this.timeout = 1500; // if retry interval is greater than 30 seconds set it to 30 seconds
 
 				if (this.status.autoReconnect) {
-					Emitter.emit('ws::onClose', {
+					emitter.emit('ws::onClose', {
 						event: ev,
 						timeout: this.timeout,
 					});
 					this.connectInterval = window.setTimeout(() => this.connect(), this.timeout); //call _wsCheck function after timeout
 				} else {
-					Emitter.emit('ws::onClose', {
+					emitter.emit('ws::onClose', {
 						event: ev,
 						timeout: 0,
 					});
@@ -103,14 +103,14 @@ export class Websockets {
 			// websocket onerror event listener
 			this.ws.onerror = (ev) => {
 				console.error('websockets connect ws onclose', ev.currentTarget);
-				Emitter.emit('ws::onError', {
+				emitter.emit('ws::onError', {
 					event: ev,
 				});
 				this.ws.close();
 			};
 
 			// Connection started
-			Emitter.emit('ws::onConnect', { connecting: true });
+			emitter.emit('ws::onConnect', { connecting: true });
 			this.connectTimeout = window.setTimeout(() => {
 				clearTimeout(this.connectTimeout); // clear timeout as its connected now
 				this.status = {
@@ -118,14 +118,14 @@ export class Websockets {
 					connecting: false,
 					connected: false,
 				};
-				Emitter.emit('ws::onClose', {
+				emitter.emit('ws::onClose', {
 					event: { reason: 'Connection timed out' },
 					timeout: 0,
 				});
 				if (this.ws !== null) this.ws.close();
 			}, 10000);
 		} catch (e) {
-			Emitter.emit('ws::onError', {
+			emitter.emit('ws::onError', {
 				event: e,
 			});
 			clearTimeout(this.connectInterval); // clear Interval on on open of websocket connection
@@ -165,7 +165,7 @@ export class Websockets {
 		const readyState = this.ws ? this.ws.readyState : WebSocket.CLOSED;
 		const connected = readyState === WebSocket.OPEN;
 
-		Emitter.emit('ws::onIsConnected', {
+		emitter.emit('ws::onIsConnected', {
 			readyState: readyState,
 			connected: connected,
 		});

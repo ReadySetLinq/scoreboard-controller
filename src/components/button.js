@@ -12,8 +12,7 @@ import {
 	setButtonAtom,
 	getLockedModeAtom,
 } from '../jotai/selectors';
-import { zeroPad } from '../services/utilities';
-import Emitter from '../services/emitter';
+import { emitter, zeroPad } from '../services/utilities';
 
 const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit, setButtonToEdit }) => {
 	const isMounted = useRef(false);
@@ -30,12 +29,12 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 
 		const _tmpUUID = `scoreboard-setTakeItemOnline-${generate()}`;
 
-		Emitter.once(_tmpUUID, (data) => {
+		emitter.once(_tmpUUID, (data) => {
 			setButton({ isOnline: !!data.response });
 		});
 
 		// Take the text back online
-		Emitter.emit('xpn::SetTakeItemOnline', {
+		emitter.emit('xpn::SetTakeItemOnline', {
 			uuid: _tmpUUID,
 			takeID: button.xpnTakeId,
 		});
@@ -45,11 +44,11 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 		if (!isMounted.current) return;
 
 		const _tmpUUID = `scoreboard-getTakeItemStatus-${generate()}`;
-		const unlisten = Emitter.once(_tmpUUID, ({ response = false }) => {
+		const unlisten = emitter.once(_tmpUUID, ({ response = false }) => {
 			setButton({ isOnline: response });
 		});
 
-		Emitter.emit('xpn::GetTakeItemStatus', {
+		emitter.emit('xpn::GetTakeItemStatus', {
 			uuid: _tmpUUID,
 			takeID: button.xpnTakeId,
 		});

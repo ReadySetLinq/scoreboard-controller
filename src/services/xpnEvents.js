@@ -1,4 +1,4 @@
-import Emitter from './emitter';
+import { emitter } from '../services/utilities';
 
 export class XpnEvents {
 	unlistens = [];
@@ -6,7 +6,7 @@ export class XpnEvents {
 	addListeners = () => {
 		// Register all event "on" listeners
 		Object.entries(events).forEach(([key, value]) => {
-			this.unlistens.push(Emitter.on(key, value));
+			this.unlistens.push(emitter.on(key, value));
 		});
 	};
 
@@ -21,7 +21,7 @@ export class XpnEvents {
 export const events = {
 	// Main
 	'xpn::start': ({ uuid = null }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -35,7 +35,7 @@ export const events = {
 	},
 	// Take Items
 	'xpn::GetTakeItemStatus': ({ uuid = null, takeID = -1 }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -48,7 +48,7 @@ export const events = {
 		);
 	},
 	'xpn::SetTakeItemOffline': ({ uuid = null, takeID = -1 }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -61,7 +61,7 @@ export const events = {
 		);
 	},
 	'xpn::SetTakeItemOnline': ({ uuid = null, takeID = -1 }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -81,7 +81,7 @@ export const events = {
 		propName = '',
 		materialName = null,
 	}) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -102,7 +102,7 @@ export const events = {
 	},
 	// Widget
 	'xpn::EditCounterWidget': ({ uuid = null, name = '', value = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -115,7 +115,7 @@ export const events = {
 		);
 	},
 	'xpn::GetCounterWidgetValue': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -128,7 +128,7 @@ export const events = {
 		);
 	},
 	'xpn::GetClockWidgetTimerValue': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -141,7 +141,7 @@ export const events = {
 		);
 	},
 	'xpn::GetClockWidgetValue': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -154,7 +154,7 @@ export const events = {
 		);
 	},
 	'xpn::StartClockWidget': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -167,7 +167,7 @@ export const events = {
 		);
 	},
 	'xpn::StopClockWidget': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -180,7 +180,7 @@ export const events = {
 		);
 	},
 	'xpn::ResetClockWidget': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -193,7 +193,7 @@ export const events = {
 		);
 	},
 	'xpn::EditClockWidgetFormat': ({ uuid = null, name = '', format = 'NN:SS' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -206,7 +206,7 @@ export const events = {
 		);
 	},
 	'xpn::EditClockWidgetStartTime': ({ uuid = null, name = '', startTime = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -219,7 +219,7 @@ export const events = {
 		);
 	},
 	'xpn::SetClockWidgetTimerValue': ({ uuid = null, name = '', value = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -238,7 +238,7 @@ export const events = {
 			return { hours: Hours, minutes: Minutes, seconds: Seconds, milliseconds: Milli };
 		},
 	}) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -257,7 +257,7 @@ export const events = {
 		);
 	},
 	'xpn::GetTextListWidgetValue': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -270,7 +270,7 @@ export const events = {
 		);
 	},
 	'xpn::SetTextListWidgetValues': ({ uuid = null, name = '', values = '0' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -283,7 +283,7 @@ export const events = {
 		);
 	},
 	'xpn::SetTextListWidgetItemIndex': ({ uuid = null, name = '', index = '0' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -296,7 +296,7 @@ export const events = {
 		);
 	},
 	'xpn::SetTextListWidgetToValue': ({ uuid = null, name = '', index = '0' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -309,7 +309,7 @@ export const events = {
 		);
 	},
 	'xpn::ClearTextListWidget': ({ uuid = null, name = '' }) => {
-		Emitter.emit(
+		emitter.emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',

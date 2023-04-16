@@ -1,11 +1,29 @@
 import { listen, once, emit } from '@tauri-apps/api/event';
 
-const Emitter = {
-	on: (event, fn) => listen(event, fn),
-	once: (event, fn) => once(event, fn),
-	emit: (event, payload) => emit(event, payload),
-};
+export class Emitter {
+	constructor() {
+		this.listeners = {};
+	}
 
-Object.freeze(Emitter);
+	async on(event, fn) {
+		return listen(event, fn);
+	}
+
+	async once(event, fn) {
+		return once(event, fn);
+	}
+
+	async emit(event, payload) {
+		return emit(event, payload);
+	}
+
+	async off(event) {
+		return listen(event, () => null);
+	}
+
+	async removeAllListeners() {
+		return listen('*', () => null);
+	}
+}
 
 export default Emitter;

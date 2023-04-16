@@ -3,9 +3,8 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
-import { getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
+import { emitter, getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
 import { useDebounce } from '../services/useDebounce';
-import Emitter from '../services/emitter';
 
 const GameClock = () => {
 	const isMounted = useRef(false);
@@ -103,21 +102,21 @@ const GameClock = () => {
 		let _tmpUUID = `scoreboard-widget-${generate()}`;
 		if (state.running) {
 			_tmpUUID = `scoreboard-startClockWidget-${generate()}`;
-			Emitter.once(_tmpUUID, ({ response }) => {
+			emitter.once(_tmpUUID, ({ response }) => {
 				console.log(_tmpUUID, response);
 			});
 
-			Emitter.emit('xpn::StartClockWidget', {
+			emitter.emit('xpn::StartClockWidget', {
 				uuid: _tmpUUID,
 				name: gameClock.widgetName,
 			});
 		} else {
 			_tmpUUID = `scoreboard-stopClockWidget-${generate()}`;
-			Emitter.once(_tmpUUID, ({ response }) => {
+			emitter.once(_tmpUUID, ({ response }) => {
 				console.log(_tmpUUID, response);
 			});
 
-			Emitter.emit('xpn::StartClockWidget', {
+			emitter.emit('xpn::StartClockWidget', {
 				uuid: _tmpUUID,
 				name: gameClock.widgetName,
 			});
@@ -130,24 +129,24 @@ const GameClock = () => {
 		if (!isMounted.current) return;
 
 		const _tmpUUID_value = `scoreboard-getClockWidgetTimerValue-${generate()}`;
-		Emitter.once(_tmpUUID_value, ({ response }) => {
+		emitter.once(_tmpUUID_value, ({ response }) => {
 			const decimal = getDecimalFromMilliseconds(parseInt(response));
 			const { minutes, seconds } = getTimeFromDecimal(state.originalValue);
 			console.log(_tmpUUID_value, decimal, `${minutes}:${seconds}`);
 			onClockChange(`${minutes}:${seconds}`);
 		});
 
-		Emitter.emit('xpn::GetClockWidgetTimerValue', {
+		emitter.emit('xpn::GetClockWidgetTimerValue', {
 			uuid: _tmpUUID_value,
 			name: gameClock.widgetName,
 		});
 
 		const _tmpUUID_callback = `scoreboard-setClockWidgetCallback-${generate()}`;
-		Emitter.once(_tmpUUID_callback, ({ response }) => {
+		emitter.once(_tmpUUID_callback, ({ response }) => {
 			console.log(_tmpUUID_callback, response);
 		});
 
-		Emitter.emit('xpn::SetClockWidgetCallback', {
+		emitter.emit('xpn::SetClockWidgetCallback', {
 			uuid: _tmpUUID_callback,
 			name: gameClock.widgetName,
 			callback: onClockCallback,

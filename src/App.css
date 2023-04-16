@@ -242,6 +242,42 @@ body {
   white-space: pre-line;
 }
 
+.confirm-box__input {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 0px #333;  
+  white-space: pre-line;
+}
+
+.confirm-box__input input[type=text], .confirm-box__input input[type=password] {
+  flex-grow: 1;
+  border-width: 0 0 1px 0;
+  margin: 0px 10px 0px 15px;
+  padding: 0px 10px 0px 10px;
+  border-radius: 5px;
+  background-color: #333;
+  border-style: none;
+  text-shadow: none;
+  text-align: center;
+  color: #999;
+  letter-spacing: 2px;
+  outline: none;
+  width: 85%
+}
+
+.confirm-box__input input[type=text]::-webkit-input-placeholder,
+.confirm-box__input input[type=password]::-webkit-input-placeholder {
+  color: #666;
+  letter-spacing: 2px;
+}
+
+.confirm-box__input input[type=text]:focus,
+.confirm-box__input input[type=password]:focus {
+  background-color: #444;
+}
+
 .confirm-box__actions {
   display: flex;
   justify-content: center;
@@ -284,6 +320,19 @@ body {
 
 .confirm-box__action--confirm:not(:disabled):hover {
   background: #3b5b9b;
+}
+
+.confirm-box__action--continue {
+  background-color: #1ed488;
+}
+
+.confirm-box__action--continue:not(:disabled):hover {
+  background-color: #1aae6f;
+}
+
+.confirm-box__action--continue:disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
 }
 
 .button {

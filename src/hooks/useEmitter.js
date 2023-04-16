@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { debounce } from 'lodash';
 
-import Emitter from '../services/emitter';
+import { emitter } from '../services/utilities';
 
 export const useEmitter = (event = '', callback = () => {}) => {
 	const isMounted = useRef(false);
@@ -13,7 +13,7 @@ export const useEmitter = (event = '', callback = () => {}) => {
 
 		debounce(async () => {
 			listenerOn.current = true;
-			unlisten = await Emitter.on(`${event.replace('.', '::')}`, (response) => {
+			unlisten = await emitter.on(`${event.replace('.', '::')}`, (response) => {
 				if (isMounted.current) callback(response);
 			});
 		}, 250)();
