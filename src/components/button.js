@@ -1,4 +1,5 @@
 import { useRef, memo, useEffect, useCallback, useMemo } from 'react';
+import { once, emit } from '@tauri-apps/api/event';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
 import { isEqual } from 'lodash';
@@ -12,7 +13,8 @@ import {
 	setButtonAtom,
 	getLockedModeAtom,
 } from '../jotai/selectors';
-import { emitter, zeroPad } from '../services/utilities';
+import { zeroPad } from '../services/utilities';
+import { XpnEvents } from '../services/XpnEvents';
 
 const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit, setButtonToEdit }) => {
 	const isMounted = useRef(false);
@@ -29,26 +31,30 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 
 		const _tmpUUID = `scoreboard-setTakeItemOnline-${generate()}`;
 
-		emitter.once(_tmpUUID, (data) => {
+		const unlisten = once(_tmpUUID, (data) => {
 			setButton({ isOnline: !!data.response });
 		});
 
 		// Take the text back online
-		emitter.emit('xpn::SetTakeItemOnline', {
+		XpnEvents.SetTakeItemOnline({
 			uuid: _tmpUUID,
 			takeID: button.xpnTakeId,
 		});
+
+		return () => {
+			unlisten();
+		};
 	}, [button.xpnTakeId, setButton]);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
 
 		const _tmpUUID = `scoreboard-getTakeItemStatus-${generate()}`;
-		const unlisten = emitter.once(_tmpUUID, ({ response = false }) => {
+		const unlisten = once(_tmpUUID, ({ response = false }) => {
 			setButton({ isOnline: response });
 		});
 
-		emitter.emit('xpn::GetTakeItemStatus', {
+		XpnEvents.GetTakeItemStatus({
 			uuid: _tmpUUID,
 			takeID: button.xpnTakeId,
 		});

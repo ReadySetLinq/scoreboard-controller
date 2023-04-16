@@ -1,8 +1,6 @@
-import { Emitter } from './emitter';
 import { Websockets } from './websockets';
 import { Connection } from './connection';
 
-export const emitter = new Emitter();
 export const webSockets = new Websockets();
 export const connection = new Connection();
 
@@ -46,7 +44,6 @@ export const getDecimalFromMilliseconds = (milliseconds) => {
 };
 
 export const Utilities = {
-	emitter,
 	webSockets,
 	connection,
 	objHas,

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSetAtom, useAtomValue } from 'jotai';
+import { emit } from '@tauri-apps/api/event';
 import { generate } from 'shortid';
 import { isEqual, debounce } from 'lodash';
 
@@ -16,7 +17,7 @@ import {
 	getConnectionMessageSelector,
 	setConnectionMessageAtom,
 } from '../jotai/selectors';
-import { emitter, connection } from '../services/utilities';
+import { connection } from '../services/utilities';
 import { useEmitter } from './useEmitter';
 
 export const useConnet = (urlSearchParams = new URLSearchParams(window.location.search)) => {
@@ -47,7 +48,7 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 
 		if (startup || !isEqual(connection.settings, settings)) {
 			setNetworkSettings(settings);
-			emitter.emit('conn::updateSettings', settings);
+			emit('conn::updateSettings', settings);
 		}
 		if (startup) {
 			setStartup(false);
@@ -58,7 +59,7 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 		isMounted.current = true;
 
 		debounce(() => {
-			if (isMounted.current && !isConnected && !isConnecting) emitter.emit('conn::connect', {});
+			if (isMounted.current && !isConnected && !isConnecting) emit('conn::connect', {});
 		}, 500)();
 
 		return () => {
@@ -93,7 +94,7 @@ export const useConnet = (urlSearchParams = new URLSearchParams(window.location.
 
 	useEmitter('xpression.loggedIn', () => {
 		if (!isMounted.current) return;
-		emitter.emit('xpn.start', { uuid: generate() });
+		emit('xpn.start', { uuid: generate() });
 		setConnectionMessageStore('Connected! Starting controller...');
 	});
 

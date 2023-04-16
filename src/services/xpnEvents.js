@@ -1,27 +1,9 @@
-import { emitter } from '../services/utilities';
+import { emit } from '@tauri-apps/api/event';
 
-export class XpnEvents {
-	unlistens = [];
-
-	addListeners = () => {
-		// Register all event "on" listeners
-		Object.entries(events).forEach(([key, value]) => {
-			this.unlistens.push(emitter.on(key, value));
-		});
-	};
-
-	removeListeners = () => {
-		// Remove all event listeners
-		for (const unlisten of this.unlistens) {
-			unlisten();
-		}
-	};
-}
-
-export const events = {
+export const XpnEvents = {
 	// Main
-	'xpn::start': ({ uuid = null }) => {
-		emitter.emit(
+	Start: ({ uuid = null }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -34,8 +16,8 @@ export const events = {
 		);
 	},
 	// Take Items
-	'xpn::GetTakeItemStatus': ({ uuid = null, takeID = -1 }) => {
-		emitter.emit(
+	GetTakeItemStatus: ({ uuid = null, takeID = -1 }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -47,8 +29,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::SetTakeItemOffline': ({ uuid = null, takeID = -1 }) => {
-		emitter.emit(
+	SetTakeItemOffline: ({ uuid = null, takeID = -1 }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -60,8 +42,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::SetTakeItemOnline': ({ uuid = null, takeID = -1 }) => {
-		emitter.emit(
+	SetTakeItemOnline: ({ uuid = null, takeID = -1 }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -73,7 +55,7 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::EditTakeItemProperty': ({
+	EditTakeItemProperty: ({
 		uuid = null,
 		takeID = -1,
 		objName = '',
@@ -81,7 +63,7 @@ export const events = {
 		propName = '',
 		materialName = null,
 	}) => {
-		emitter.emit(
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -101,8 +83,8 @@ export const events = {
 		);
 	},
 	// Widget
-	'xpn::EditCounterWidget': ({ uuid = null, name = '', value = '' }) => {
-		emitter.emit(
+	EditCounterWidget: ({ uuid = null, name = '', value = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -114,8 +96,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::GetCounterWidgetValue': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	GetCounterWidgetValue: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -127,8 +109,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::GetClockWidgetTimerValue': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	GetClockWidgetTimerValue: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -140,8 +122,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::GetClockWidgetValue': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	GetClockWidgetValue: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -153,8 +135,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::StartClockWidget': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	StartClockWidget: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -166,8 +148,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::StopClockWidget': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	StopClockWidget: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -179,8 +161,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::ResetClockWidget': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	ResetClockWidget: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -192,8 +174,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::EditClockWidgetFormat': ({ uuid = null, name = '', format = 'NN:SS' }) => {
-		emitter.emit(
+	EditClockWidgetFormat: ({ uuid = null, name = '', format = 'NN:SS' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -205,8 +187,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::EditClockWidgetStartTime': ({ uuid = null, name = '', startTime = '' }) => {
-		emitter.emit(
+	EditClockWidgetStartTime: ({ uuid = null, name = '', startTime = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -218,8 +200,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::SetClockWidgetTimerValue': ({ uuid = null, name = '', value = '' }) => {
-		emitter.emit(
+	SetClockWidgetTimerValue: ({ uuid = null, name = '', value = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -231,14 +213,14 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::SetClockWidgetCallback': ({
+	SetClockWidgetCallback: ({
 		uuid = null,
 		name = '',
 		callback = (Hours, Minutes, Seconds, Milli) => {
 			return { hours: Hours, minutes: Minutes, seconds: Seconds, milliseconds: Milli };
 		},
 	}) => {
-		emitter.emit(
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -256,8 +238,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::GetTextListWidgetValue': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	GetTextListWidgetValue: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -269,8 +251,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::SetTextListWidgetValues': ({ uuid = null, name = '', values = '0' }) => {
-		emitter.emit(
+	SetTextListWidgetValues: ({ uuid = null, name = '', values = '0' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -282,8 +264,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::SetTextListWidgetItemIndex': ({ uuid = null, name = '', index = '0' }) => {
-		emitter.emit(
+	SetTextListWidgetItemIndex: ({ uuid = null, name = '', index = '0' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -295,8 +277,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::SetTextListWidgetToValue': ({ uuid = null, name = '', index = '0' }) => {
-		emitter.emit(
+	SetTextListWidgetToValue: ({ uuid = null, name = '', index = '0' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',
@@ -308,8 +290,8 @@ export const events = {
 			}),
 		);
 	},
-	'xpn::ClearTextListWidget': ({ uuid = null, name = '' }) => {
-		emitter.emit(
+	ClearTextListWidget: ({ uuid = null, name = '' }) => {
+		emit(
 			'conn::sendMessage',
 			JSON.stringify({
 				service: 'xpression',

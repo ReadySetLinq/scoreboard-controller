@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
+import { listen } from '@tauri-apps/api/event';
 import { debounce } from 'lodash';
-
-import { emitter } from '../services/utilities';
 
 export const useEmitter = (event = '', callback = () => {}) => {
 	const isMounted = useRef(false);
@@ -13,7 +12,7 @@ export const useEmitter = (event = '', callback = () => {}) => {
 
 		debounce(async () => {
 			listenerOn.current = true;
-			unlisten = await emitter.on(`${event.replace('.', '::')}`, (response) => {
+			unlisten = await listen(`${event.replace('.', '::')}`, (response) => {
 				if (isMounted.current) callback(response);
 			});
 		}, 250)();

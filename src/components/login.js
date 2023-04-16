@@ -13,8 +13,6 @@ import {
 } from '../jotai/selectors';
 import Wrapper from './wrapper';
 
-// Possible EventEmitter memory leak detected. 11 open listeners added to [_0x1237cf]. Use emitter.setMaxListeners() to increase limit
-
 const Login = () => {
 	const [settings, setSettings] = useState({ ...defaultNetworkSettingsData });
 	const loggedIn = useAtomValue(getLoginAtom);

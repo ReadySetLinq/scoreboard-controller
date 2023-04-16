@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { listen, emit } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/tauri';
 import { appWindow } from '@tauri-apps/api/window';
 
 import { useConnet } from './hooks/useConnect';
 import { useEmitter } from './hooks/useEmitter';
-import { emitter } from './services/utilities';
 import { getWindowSelector, setWindowAtom, getLoginAtom } from './jotai/selectors';
 import Load from './components/load';
 import Login from './components/login';
@@ -31,7 +31,7 @@ const App = () => {
 		let unlisten = () => null;
 
 		const app_event = async () => {
-			unlisten = await emitter.on('app::event', (event) => {
+			unlisten = await listen('app::event', (event) => {
 				if (event.payload) {
 					console.log('useEffect app::event', event.payload);
 				}
@@ -40,7 +40,7 @@ const App = () => {
 		app_event();
 
 		if (!isMounted.current) {
-			appWindow.emit('app::event', 'App Mounted');
+			emit('app::event', 'App Mounted');
 
 			let position = appWindow.outerPosition();
 			if (getWindowSize.x && getWindowSize.x !== position.x) {

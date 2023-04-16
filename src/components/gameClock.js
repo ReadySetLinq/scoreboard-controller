@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { once, emit } from '@tauri-apps/api/event';
 import { generate } from 'shortid';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
-import { emitter, getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
+import { getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
+import { XpnEvents } from '../services/XpnEvents';
 import { useDebounce } from '../services/useDebounce';
 
 const GameClock = () => {
@@ -100,27 +102,32 @@ const GameClock = () => {
 		if (!isMounted.current) return;
 
 		let _tmpUUID = `scoreboard-widget-${generate()}`;
+		let unlisten = () => {};
 		if (state.running) {
 			_tmpUUID = `scoreboard-startClockWidget-${generate()}`;
-			emitter.once(_tmpUUID, ({ response }) => {
+			unlisten = once(_tmpUUID, ({ response }) => {
 				console.log(_tmpUUID, response);
 			});
 
-			emitter.emit('xpn::StartClockWidget', {
+			XpnEvents.StartClockWidget({
 				uuid: _tmpUUID,
 				name: gameClock.widgetName,
 			});
 		} else {
 			_tmpUUID = `scoreboard-stopClockWidget-${generate()}`;
-			emitter.once(_tmpUUID, ({ response }) => {
+			unlisten = once(_tmpUUID, ({ response }) => {
 				console.log(_tmpUUID, response);
 			});
 
-			emitter.emit('xpn::StartClockWidget', {
+			XpnEvents.StartClockWidget({
 				uuid: _tmpUUID,
 				name: gameClock.widgetName,
 			});
 		}
+
+		return () => {
+			unlisten();
+		};
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [state.running]);
@@ -129,28 +136,33 @@ const GameClock = () => {
 		if (!isMounted.current) return;
 
 		const _tmpUUID_value = `scoreboard-getClockWidgetTimerValue-${generate()}`;
-		emitter.once(_tmpUUID_value, ({ response }) => {
+		const unlistenValue = once(_tmpUUID_value, ({ response }) => {
 			const decimal = getDecimalFromMilliseconds(parseInt(response));
 			const { minutes, seconds } = getTimeFromDecimal(state.originalValue);
 			console.log(_tmpUUID_value, decimal, `${minutes}:${seconds}`);
 			onClockChange(`${minutes}:${seconds}`);
 		});
 
-		emitter.emit('xpn::GetClockWidgetTimerValue', {
+		XpnEvents.GetClockWidgetTimerValue({
 			uuid: _tmpUUID_value,
 			name: gameClock.widgetName,
 		});
 
 		const _tmpUUID_callback = `scoreboard-setClockWidgetCallback-${generate()}`;
-		emitter.once(_tmpUUID_callback, ({ response }) => {
+		const unlistenCallback = once(_tmpUUID_callback, ({ response }) => {
 			console.log(_tmpUUID_callback, response);
 		});
 
-		emitter.emit('xpn::SetClockWidgetCallback', {
+		XpnEvents.SetClockWidgetCallback({
 			uuid: _tmpUUID_callback,
 			name: gameClock.widgetName,
 			callback: onClockCallback,
 		});
+
+		return () => {
+			unlistenValue();
+			unlistenCallback();
+		};
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [clockName]);

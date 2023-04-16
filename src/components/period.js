@@ -1,11 +1,12 @@
 import { memo, useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { once, emit } from '@tauri-apps/api/event';
 import { generate } from 'shortid';
 import { isEqual } from 'lodash';
 
 import { getPeriodSelector, setPeriodAtom, getLockedModeAtom } from '../jotai/selectors';
 import { useDebounce } from '../services/useDebounce';
-import { emitter } from '../services/utilities';
+import { XpnEvents } from '../services/XpnEvents';
 
 const Period = ({ setLoadState }) => {
 	const isMounted = useRef(false);
@@ -37,25 +38,29 @@ const Period = ({ setLoadState }) => {
 
 		const _tmpUUID_set = `scoreboard-setTextListWidgetValues-${generate()}`;
 		const _tmpUUID_index = `scoreboard-setTextListWidgetItemIndex-${generate()}`;
-		emitter.once(_tmpUUID_set, () => {
-			emitter.once(_tmpUUID_index, ({ response }) => {
+		const unlisten = once(_tmpUUID_set, () => {
+			once(_tmpUUID_index, ({ response }) => {
 				if (response !== false && period.value !== response) {
 					setPeriod({ value: response });
 				}
 			});
 
-			emitter.emit('xpn::SetTextListWidgetItemIndex', {
+			XpnEvents.SetTextListWidgetItemIndex({
 				uuid: _tmpUUID_index,
 				name: period.widgetName,
 				index: '0',
 			});
 		});
 
-		emitter.emit('xpn::SetTextListWidgetValues', {
+		XpnEvents.SetTextListWidgetValues({
 			uuid: _tmpUUID_set,
 			name: period.widgetName,
 			values: period.value,
 		});
+
+		return () => {
+			unlisten();
+		};
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [periodValue]);
@@ -67,14 +72,14 @@ const Period = ({ setLoadState }) => {
 		if (timerPeriodName.current) clearTimeout(timerPeriodName.current);
 
 		const _tmpUUID = `scoreboard-getTextListWidgetValue-${generate()}`;
-		emitter.once(_tmpUUID, ({ response }) => {
+		const unlisten = once(_tmpUUID, ({ response }) => {
 			if (response !== false) setPeriod({ value: response });
 			else setPeriod({ value: '' });
 			setLoadState((prevState) => ({ ...prevState, period: true }));
 		});
 
 		timerPeriodName.current = setTimeout(() => {
-			emitter.emit('xpn::GetTextListWidgetValue', {
+			XpnEvents.GetTextListWidgetValue({
 				uuid: _tmpUUID,
 				name: period.widgetName,
 			});
@@ -82,6 +87,7 @@ const Period = ({ setLoadState }) => {
 
 		return () => {
 			clearTimeout(timerPeriodName.current);
+			unlisten();
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [periodName]);

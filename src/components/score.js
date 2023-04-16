@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { once } from '@tauri-apps/api/event';
 import { generate } from 'shortid';
 import { isEqual } from 'lodash';
 
@@ -10,7 +11,8 @@ import {
 	setAwayScoreAtom,
 	getLockedModeAtom,
 } from '../jotai/selectors';
-import { emitter, getStyle, isNumber } from '../services/utilities';
+import { getStyle, isNumber } from '../services/utilities';
+import { XpnEvents } from '../services/XpnEvents';
 import { useDebounce } from '../services/useDebounce';
 import Counter from './counter';
 
@@ -76,7 +78,7 @@ const Home = ({ setLoadState }) => {
 		if (!isMounted.current) return;
 
 		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
-		emitter.once(_tmpUUID, ({ response }) => {
+		const unlisten = once(_tmpUUID, ({ response }) => {
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				const currentValue = parseInt(homeScore.value, 0);
@@ -87,13 +89,17 @@ const Home = ({ setLoadState }) => {
 			}
 		});
 
-		emitter.emit('xpn::EditCounterWidget', {
+		XpnEvents.EditCounterWidget({
 			uuid: _tmpUUID,
 			name: homeScore.widgetName,
 			value: homeScore.value,
 		});
 
 		updateScroll(homeScore.widgetName);
+
+		return () => {
+			unlisten();
+		};
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scoreValue]);
@@ -104,7 +110,7 @@ const Home = ({ setLoadState }) => {
 		if (timerHomeScoreName.current) clearTimeout(timerHomeScoreName.current);
 
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
-		emitter.once(_tmpUUID, ({ response }) => {
+		once(_tmpUUID, ({ response }) => {
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				setHomeScore({ value: returnedValue });
@@ -113,7 +119,7 @@ const Home = ({ setLoadState }) => {
 		});
 
 		timerHomeScoreName.current = setTimeout(() => {
-			emitter.emit('xpn::GetCounterWidgetValue', {
+			XpnEvents.GetCounterWidgetValue({
 				uuid: _tmpUUID,
 				name: homeScore.widgetName,
 			});
@@ -177,7 +183,7 @@ const Away = ({ setLoadState }) => {
 		if (!isMounted.current) return;
 
 		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
-		emitter.once(_tmpUUID, ({ response }) => {
+		once(_tmpUUID, ({ response }) => {
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				const currentValue = parseInt(awayScore.value, 0);
@@ -188,7 +194,7 @@ const Away = ({ setLoadState }) => {
 			}
 		});
 
-		emitter.emit('xpn::EditCounterWidget', {
+		XpnEvents.EditCounterWidget({
 			uuid: _tmpUUID,
 			name: awayScore.widgetName,
 			value: awayScore.value,
@@ -205,7 +211,7 @@ const Away = ({ setLoadState }) => {
 		if (timerAwayScoreName.current) clearTimeout(timerAwayScoreName.current);
 
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
-		emitter.once(_tmpUUID, ({ response }) => {
+		once(_tmpUUID, ({ response }) => {
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				setAwayScore({ value: returnedValue });
@@ -214,7 +220,7 @@ const Away = ({ setLoadState }) => {
 		});
 
 		timerAwayScoreName.current = setTimeout(() => {
-			emitter.emit('xpn::GetCounterWidgetValue', {
+			XpnEvents.GetCounterWidgetValue({
 				uuid: _tmpUUID,
 				name: awayScore.widgetName,
 			});
