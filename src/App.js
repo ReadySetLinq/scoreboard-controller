@@ -20,7 +20,7 @@ const App = () => {
 	const getWindowSize = useAtomValue(getWindowSelector);
 	const setWindowSize = useSetAtom(setWindowAtom);
 	const isLoggedIn = useAtomValue(getLoginAtom);
-	const { isConnected, isConnecting, isStarted } = useConnet(new URLSearchParams(window.location.search));
+	const { isConnected, isConnecting, isStarted } = useConnet();
 	const showConnect = useMemo(() => !isConnected || isConnecting || !isStarted, [isConnected, isConnecting, isStarted]);
 	const loadTitle = useMemo(
 		() => (!isConnected || isConnecting ? 'Connecting' : 'Loading'),
@@ -28,16 +28,13 @@ const App = () => {
 	);
 
 	useEffect(() => {
-		let unlisten = () => null;
-
-		const app_event = async () => {
-			unlisten = await listen('app::event', (event) => {
-				if (event.payload) {
-					console.log('useEffect app::event', event.payload);
-				}
-			});
-		};
-		app_event();
+		console.log('useEffect app::event');
+		const unlisten = listen('app::event', (event) => {
+			if (!isMounted.current) return;
+			if (event.payload) {
+				console.log('useEffect app::event', event.payload);
+			}
+		});
 
 		if (!isMounted.current) {
 			emit('app::event', 'App Mounted');
@@ -58,38 +55,43 @@ const App = () => {
 			}).catch(console.error);
 		}
 
-		isMounted.current = true;
-
 		return () => {
-			isMounted.current = false;
-			unlisten();
+			unlisten.then((f) => f());
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
-		let unlistenOnMove = () => null;
-		let unlistenOnResized = () => null;
-		const watch = async () => {
-			unlistenOnMove = await appWindow.onMoved(({ payload: position }) => {
-				setWindowSize({ x: position.x, y: position.y });
-			});
-			unlistenOnResized = await appWindow.onResized(({ payload: size }) => {
-				setWindowSize({ width: size.width, height: size.height });
-			});
-		};
-		watch();
+		console.log('useEffect watch');
+		const unlistenOnMove = appWindow.onMoved(({ payload: position }) => {
+			if (!isMounted.current) return;
+			setWindowSize({ x: position.x, y: position.y });
+		});
+		const unlistenOnResized = appWindow.onResized(({ payload: size }) => {
+			if (!isMounted.current) return;
+			setWindowSize({ width: size.width, height: size.height });
+		});
 
 		return () => {
-			unlistenOnMove();
-			unlistenOnResized();
+			unlistenOnMove.then((f) => f());
+			unlistenOnResized.then((f) => f());
 		};
 	}, [setWindowSize]);
+
+	useEffect(() => {
+		isMounted.current = true;
+
+		return () => {
+			isMounted.current = false;
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	useEmitter('app::event', ({ payload }) => {
 		console.log('useEmitter app::event', payload);
 	});
 
+	//*
 	if (!isLoggedIn) {
 		return (
 			<Suspense fallback={<Load title={loadTitle} message={'Please login to continue.'} showXpression={false} />}>
@@ -97,6 +99,7 @@ const App = () => {
 			</Suspense>
 		);
 	}
+	//*/
 
 	/*
 	return (
@@ -106,7 +109,7 @@ const App = () => {
 	);
 	//*/
 
-	/* */
+	//*
 	return (
 		<Suspense fallback={<Load title={loadTitle} message={'Please wait.'} showXpression={showConnect} />}>
 			<Scoreboard />

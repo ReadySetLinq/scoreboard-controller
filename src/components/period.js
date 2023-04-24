@@ -1,12 +1,12 @@
 import { memo, useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { once, emit } from '@tauri-apps/api/event';
+import { once } from '@tauri-apps/api/event';
 import { generate } from 'shortid';
 import { isEqual } from 'lodash';
 
 import { getPeriodSelector, setPeriodAtom, getLockedModeAtom } from '../jotai/selectors';
 import { useDebounce } from '../services/useDebounce';
-import { XpnEvents } from '../services/XpnEvents';
+import { XpnEvents } from '../services/xpnEvents';
 
 const Period = ({ setLoadState }) => {
 	const isMounted = useRef(false);
@@ -38,19 +38,7 @@ const Period = ({ setLoadState }) => {
 
 		const _tmpUUID_set = `scoreboard-setTextListWidgetValues-${generate()}`;
 		const _tmpUUID_index = `scoreboard-setTextListWidgetItemIndex-${generate()}`;
-		const unlisten = once(_tmpUUID_set, () => {
-			once(_tmpUUID_index, ({ response }) => {
-				if (response !== false && period.value !== response) {
-					setPeriod({ value: response });
-				}
-			});
-
-			XpnEvents.SetTextListWidgetItemIndex({
-				uuid: _tmpUUID_index,
-				name: period.widgetName,
-				index: '0',
-			});
-		});
+		let unlistenIndex = null;
 
 		XpnEvents.SetTextListWidgetValues({
 			uuid: _tmpUUID_set,
@@ -58,25 +46,52 @@ const Period = ({ setLoadState }) => {
 			values: period.value,
 		});
 
-		return () => {
-			unlisten();
-		};
+		const unlistenValues = once(_tmpUUID_set, () => {
+			if (!isMounted.current) return;
+			XpnEvents.SetTextListWidgetItemIndex({
+				uuid: _tmpUUID_index,
+				name: period.widgetName,
+				index: '0',
+			});
 
+			unlistenIndex = once(_tmpUUID_index, ({ response }) => {
+				if (isMounted.current) {
+					if (response !== false && period.value !== response) {
+						if (isMounted.current) setPeriod({ value: response });
+					}
+				}
+			});
+		});
+
+		return () => {
+			if (unlistenValues !== null) unlistenValues.then((f) => f());
+			if (unlistenIndex !== null) unlistenIndex.then((f) => f());
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [periodValue]);
 
 	useEffect(() => {
 		if (!isMounted.current) return;
+		const _tmpUUID = `scoreboard-getTextListWidgetValue-${generate()}`;
+		let unlisten = null;
+
 		setLoadState((prevState) => ({ ...prevState, period: false }));
 
 		if (timerPeriodName.current) clearTimeout(timerPeriodName.current);
 
-		const _tmpUUID = `scoreboard-getTextListWidgetValue-${generate()}`;
-		const unlisten = once(_tmpUUID, ({ response }) => {
-			if (response !== false) setPeriod({ value: response });
-			else setPeriod({ value: '' });
-			setLoadState((prevState) => ({ ...prevState, period: true }));
-		});
+		const getTextListWidgetValue = async () => {
+			if (!isMounted.current) return;
+			unlisten = once(_tmpUUID, ({ response }) => {
+				if (!isMounted.current) return;
+
+				if (response !== false) setPeriod({ value: response });
+				else setPeriod({ value: '' });
+
+				setLoadState((prevState) => ({ ...prevState, period: true }));
+			});
+		};
+
+		getTextListWidgetValue();
 
 		timerPeriodName.current = setTimeout(() => {
 			XpnEvents.GetTextListWidgetValue({
@@ -87,7 +102,7 @@ const Period = ({ setLoadState }) => {
 
 		return () => {
 			clearTimeout(timerPeriodName.current);
-			unlisten();
+			if (unlisten !== null) unlisten.then((f) => f());
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [periodName]);

@@ -13,10 +13,7 @@ export class Websockets {
 	unlisten = () => null;
 
 	constructor() {
-		const listeners = async () => {
-			this.unlisten = await listen('ws::isConnected', this.isConnected);
-		};
-		listeners();
+		this.unlisten = listen('ws::isConnected', this.isConnected);
 	}
 
 	destroy = () => {
@@ -27,7 +24,7 @@ export class Websockets {
 		clearTimeout(this.connectTimeout); // clear timeout as its connected now
 
 		if (ws !== null) ws.close();
-		this.unlisten();
+		if (this.unlisten !== null) this.unlisten.then((f) => f());
 	};
 
 	updateData = (networkSettings) => {

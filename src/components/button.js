@@ -1,5 +1,5 @@
 import { useRef, memo, useEffect, useCallback, useMemo } from 'react';
-import { once, emit } from '@tauri-apps/api/event';
+import { once } from '@tauri-apps/api/event';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { generate } from 'shortid';
 import { isEqual } from 'lodash';
@@ -14,7 +14,7 @@ import {
 	getLockedModeAtom,
 } from '../jotai/selectors';
 import { zeroPad } from '../services/utilities';
-import { XpnEvents } from '../services/XpnEvents';
+import { XpnEvents } from '../services/xpnEvents';
 
 const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit, setButtonToEdit }) => {
 	const isMounted = useRef(false);
@@ -42,7 +42,7 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 		});
 
 		return () => {
-			unlisten();
+			unlisten.then((f) => f());
 		};
 	}, [button.xpnTakeId, setButton]);
 
@@ -60,7 +60,7 @@ const Button = ({ index, highlight, setLoadState, setConfirmState, buttonToEdit,
 		});
 
 		return () => {
-			unlisten();
+			unlisten.then((f) => f());
 		};
 	}, [button.xpnTakeId, setButton]);
 

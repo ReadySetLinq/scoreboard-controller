@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { once, emit } from '@tauri-apps/api/event';
+import { once } from '@tauri-apps/api/event';
 import { generate } from 'shortid';
 
 import { getGameClockSelector, setGameClockAtom, getLockedModeAtom } from '../jotai/selectors';
 import { getTimeFromDecimal, getDecimalFromMilliseconds } from '../services/utilities';
-import { XpnEvents } from '../services/XpnEvents';
+import { XpnEvents } from '../services/xpnEvents';
 import { useDebounce } from '../services/useDebounce';
 
 const GameClock = () => {
@@ -102,7 +102,7 @@ const GameClock = () => {
 		if (!isMounted.current) return;
 
 		let _tmpUUID = `scoreboard-widget-${generate()}`;
-		let unlisten = () => {};
+		let unlisten = null;
 		if (state.running) {
 			_tmpUUID = `scoreboard-startClockWidget-${generate()}`;
 			unlisten = once(_tmpUUID, ({ response }) => {
@@ -126,7 +126,7 @@ const GameClock = () => {
 		}
 
 		return () => {
-			unlisten();
+			if (unlisten !== null) unlisten.then((f) => f());
 		};
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,8 +160,8 @@ const GameClock = () => {
 		});
 
 		return () => {
-			unlistenValue();
-			unlistenCallback();
+			unlistenValue.then((f) => f());
+			unlistenCallback.then((f) => f());
 		};
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

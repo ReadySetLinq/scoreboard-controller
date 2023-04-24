@@ -25,29 +25,26 @@ export class Connection {
 	unlistens = [];
 
 	constructor() {
-		const listeners = async () => {
-			this.unlistens.push(
-				await listen('conn::getStatus', () =>
-					emit('conn::status', {
-						connected: this.connected,
-						connecting: this.connecting,
-						displayMsg: this.displayMsg,
-					}),
-				),
-			);
-			this.unlistens.push(listen('conn::getDisplayMsg', () => emit('conn::displayMsg', this.displayMsg)));
-			this.unlistens.push(listen('conn::updateSettings', this.updateSettings));
-			this.unlistens.push(listen('conn::connect', this.connect));
-			this.unlistens.push(listen('conn::disconnect', this.disconnect));
-			this.unlistens.push(listen('conn::reconnect', this.reconnect));
-			this.unlistens.push(listen('conn::sendMessage', this.sendMessage));
-			this.unlistens.push(listen('ws::onIsConnected', this.onIsConnected));
-			this.unlistens.push(listen('ws::onOpen', this.onOpen));
-			this.unlistens.push(listen('ws::onMessage', this.onMessage));
-			this.unlistens.push(listen('ws::onClose', this.onClose));
-			this.unlistens.push(listen('ws::onError', this.onError));
-		};
-		listeners();
+		this.unlistens.push(
+			listen('conn::getStatus', () =>
+				emit('conn::status', {
+					connected: this.connected,
+					connecting: this.connecting,
+					displayMsg: this.displayMsg,
+				}),
+			),
+		);
+		this.unlistens.push(listen('conn::getDisplayMsg', () => emit('conn::displayMsg', this.displayMsg)));
+		this.unlistens.push(listen('conn::updateSettings', this.updateSettings));
+		this.unlistens.push(listen('conn::connect', this.connect));
+		this.unlistens.push(listen('conn::disconnect', this.disconnect));
+		this.unlistens.push(listen('conn::reconnect', this.reconnect));
+		this.unlistens.push(listen('conn::sendMessage', this.sendMessage));
+		this.unlistens.push(listen('ws::onIsConnected', this.onIsConnected));
+		this.unlistens.push(listen('ws::onOpen', this.onOpen));
+		this.unlistens.push(listen('ws::onMessage', this.onMessage));
+		this.unlistens.push(listen('ws::onClose', this.onClose));
+		this.unlistens.push(listen('ws::onError', this.onError));
 		this.initialized = true;
 	}
 
@@ -58,7 +55,7 @@ export class Connection {
 
 		// Unlisten to all the connection events
 		for (const unlisten of this.unlistens) {
-			unlisten();
+			if (unlisten !== null) unlisten.then((f) => f());
 		}
 
 		this.initialized = false;

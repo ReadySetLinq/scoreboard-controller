@@ -25,7 +25,7 @@ const ErrorDisplay = ({ error, onRemove }) => {
 		</div>
 	);
 };
-export const Error = memo(ErrorDisplay, isEqual);
+export const ErrorDisp = memo(ErrorDisplay, isEqual);
 
 const ErrorList = () => {
 	const [errorState, setErrorState] = useState([]);
@@ -58,7 +58,7 @@ const ErrorList = () => {
 	return (
 		<div className='errors__row' ref={errorsListRef}>
 			{errorState.map((error) => (
-				<Error
+				<ErrorDisp
 					key={`error-${error.index}`}
 					index={error.index}
 					onRemove={() => setErrorState((prev) => prev.filter((item) => item.index !== error.index))}

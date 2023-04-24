@@ -11,6 +11,7 @@ import {
 	setNetworkSettingsUserNameAtom,
 	setNetworkSettingsPasswordAtom,
 } from '../jotai/selectors';
+import { connection } from '../services/utilities';
 import Wrapper from './wrapper';
 
 const Login = () => {
@@ -50,14 +51,14 @@ const Login = () => {
 		}
 	}, [settings, networkSettings, setNetworkIP, setNetworkPort, setNetworkUserName, setNetworkPassword]);
 
-	const Cancel = useCallback(() => {
-		setSettings({ ...networkSettings });
-	}, [setSettings, networkSettings]);
+	const Cancel = () => {
+		setSettings({ ...connection.settings });
+	};
 
-	const Login = useCallback(() => {
+	const Login = () => {
 		SaveSettings();
 		seLoggedIn(true);
-	}, [SaveSettings, seLoggedIn]);
+	};
 
 	return (
 		<div className={`confirm-box ${!loggedIn ? 'show' : 'hidden no_display'}`}>

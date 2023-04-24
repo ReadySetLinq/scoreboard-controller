@@ -12,7 +12,7 @@ import {
 	getLockedModeAtom,
 } from '../jotai/selectors';
 import { getStyle, isNumber } from '../services/utilities';
-import { XpnEvents } from '../services/XpnEvents';
+import { XpnEvents } from '../services/xpnEvents';
 import { useDebounce } from '../services/useDebounce';
 import Counter from './counter';
 
@@ -77,20 +77,24 @@ const Home = ({ setLoadState }) => {
 	useEffect(() => {
 		if (!isMounted.current) return;
 
-		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
-		const unlisten = once(_tmpUUID, ({ response }) => {
+		const tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
+
+		const unlisten = once(tmpUUID, ({ response }) => {
+			if (!isMounted.current) return;
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				const currentValue = parseInt(homeScore.value, 0);
 				if (returnedValue !== currentValue) {
-					setHomeScore({ value: returnedValue });
-					updateScroll(homeScore.widgetName);
+					if (isMounted.current) {
+						setHomeScore({ value: returnedValue });
+						updateScroll(homeScore.widgetName);
+					}
 				}
 			}
 		});
 
 		XpnEvents.EditCounterWidget({
-			uuid: _tmpUUID,
+			uuid: tmpUUID,
 			name: homeScore.widgetName,
 			value: homeScore.value,
 		});
@@ -98,7 +102,7 @@ const Home = ({ setLoadState }) => {
 		updateScroll(homeScore.widgetName);
 
 		return () => {
-			unlisten();
+			unlisten.then((f) => f());
 		};
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,8 +113,10 @@ const Home = ({ setLoadState }) => {
 
 		if (timerHomeScoreName.current) clearTimeout(timerHomeScoreName.current);
 
-		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
-		once(_tmpUUID, ({ response }) => {
+		const tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
+
+		const unlisten = once(tmpUUID, ({ response }) => {
+			if (!isMounted.current) return;
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				setHomeScore({ value: returnedValue });
@@ -120,13 +126,14 @@ const Home = ({ setLoadState }) => {
 
 		timerHomeScoreName.current = setTimeout(() => {
 			XpnEvents.GetCounterWidgetValue({
-				uuid: _tmpUUID,
+				uuid: tmpUUID,
 				name: homeScore.widgetName,
 			});
 		}, 250);
 
 		return () => {
 			clearTimeout(timerHomeScoreName.current);
+			unlisten.then((f) => f());
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scoreName]);
@@ -183,7 +190,7 @@ const Away = ({ setLoadState }) => {
 		if (!isMounted.current) return;
 
 		const _tmpUUID = `scoreboard-editCounterWidget-${generate()}`;
-		once(_tmpUUID, ({ response }) => {
+		const unlisten = once(_tmpUUID, ({ response }) => {
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				const currentValue = parseInt(awayScore.value, 0);
@@ -202,6 +209,10 @@ const Away = ({ setLoadState }) => {
 
 		updateScroll(awayScore.widgetName);
 
+		return () => {
+			unlisten.then((f) => f());
+		};
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [scoreValue]);
 
@@ -211,7 +222,7 @@ const Away = ({ setLoadState }) => {
 		if (timerAwayScoreName.current) clearTimeout(timerAwayScoreName.current);
 
 		const _tmpUUID = `scoreboard-getCounterWidgetValue-${generate()}`;
-		once(_tmpUUID, ({ response }) => {
+		const unlisten = once(_tmpUUID, ({ response }) => {
 			if (response.toLowerCase().indexOf('Failed') < 0 && isNumber(response)) {
 				const returnedValue = parseInt(response, 0);
 				setAwayScore({ value: returnedValue });
@@ -227,6 +238,7 @@ const Away = ({ setLoadState }) => {
 		}, 250);
 
 		return () => {
+			unlisten.then((f) => f());
 			clearTimeout(timerAwayScoreName.current);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps

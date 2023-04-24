@@ -20,7 +20,7 @@ import {
 import { connection } from '../services/utilities';
 import { useEmitter } from './useEmitter';
 
-export const useConnet = (urlSearchParams = new URLSearchParams(window.location.search)) => {
+export const useConnet = () => {
 	const isMounted = useRef(false);
 	const networkSettings = useAtomValue(getNetworkSettingsAtom);
 	const setNetworkSettings = useSetAtom(setNetworkSettingsAtom);
